@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!--#include head -->
+  <title>Admin | HELLA GOOD! Energy Gummies DSD</title>
+  <meta name="description" content="HELLA GOOD! Energy Gummies DSD admin console.">
+  {{ROBOTS}}
+  <link rel="canonical" href="{{ORIGIN}}/admin">
+  <link rel="stylesheet" href="/css/dsd.css">
+  <script src="/js/auth.js" defer></script>
+  <script src="/js/admin.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+<!--#include sprite -->
+<!--#include dsd-header -->
+
+  <main id="main">
+    <div class="wrap">
+      <div class="portal-topbar">
+        <h1>Admin <em>Console</em></h1>
+        <div class="portal-user">Signed in as <b>{{USER_NAME}}</b> · <a href="/portal">Portal</a> · <a href="#" data-logout>Sign out</a></div>
+      </div>
+
+      <nav class="admin-tabs" aria-label="Admin sections">
+        <button type="button" class="active" data-tab="dsds">DSDs</button>
+        <button type="button" data-tab="orders">Orders</button>
+        <button type="button" data-tab="config">Pricing</button>
+      </nav>
+
+      <section class="admin-panel active" data-panel="dsds" aria-label="DSDs">
+        <div class="invite-row">
+          <input type="email" id="invite-email" placeholder="Email to invite" autocomplete="off">
+          <input type="text" id="invite-name" placeholder="Name (optional)">
+          <input type="text" id="invite-company" placeholder="Company (optional)">
+          <button type="button" class="btn btn-red" id="invite-btn">Invite DSD</button>
+          <div class="invite-link" id="invite-link" hidden></div>
+        </div>
+        <div class="table-scroll">
+          <table class="table">
+            <thead><tr><th>DSD</th><th>Status</th><th>Orders</th><th>Total</th><th class="num">Wholesale %</th><th>Actions</th></tr></thead>
+            <tbody id="dsd-list"></tbody>
+          </table>
+        </div>
+        <div class="muted-block" id="dsd-empty" hidden>No DSDs yet. Invite one above.</div>
+      </section>
+
+      <section class="admin-panel" data-panel="orders" aria-label="Orders">
+        <div class="table-scroll">
+          <table class="table">
+            <thead><tr><th>Date</th><th>DSD</th><th>Items</th><th class="num">Subtotal</th><th class="num">Shipping</th><th class="num">Tax</th><th class="num">Total</th></tr></thead>
+            <tbody id="orders-list"></tbody>
+          </table>
+        </div>
+        <div class="muted-block" id="orders-empty" hidden>No orders yet.</div>
+      </section>
+
+      <section class="admin-panel" data-panel="config" aria-label="Pricing">
+        <div class="config-card">
+          <h3>Wholesale discount</h3>
+          <p>The flat percent off retail every DSD pays, unless a DSD has their own override.</p>
+          <div class="config-row">
+            <input type="number" id="wholesale-pct" min="0" max="90" step="1"> <span class="unit">% off retail</span>
+            <button type="button" class="btn btn-red" id="save-pct">Save</button>
+          </div>
+          <p class="hint" style="font-size:12.5px;color:var(--dim);margin-top:12px;" id="config-unit"></p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+<!--#include dsd-footer -->
+</body>
+</html>

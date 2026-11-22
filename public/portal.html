@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<!--#include head -->
+  <title>DSD Portal | HELLA GOOD! Energy Gummies</title>
+  <meta name="description" content="HELLA GOOD! Energy Gummies wholesale ordering for DSDs.">
+  {{ROBOTS}}
+  <link rel="canonical" href="{{ORIGIN}}/portal">
+  <link rel="stylesheet" href="/css/dsd.css">
+  <script src="/js/auth.js" defer></script>
+  <script src="/js/pricing.js" defer></script>
+  <script src="/js/portal.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+<!--#include sprite -->
+<!--#include dsd-header -->
+
+  <main id="main">
+    <div class="wrap">
+      <div class="portal-topbar">
+        <h1>DSD <em>Portal</em></h1>
+        <div class="portal-user">Signed in as <b id="portal-user-name">{{USER_NAME}}</b> · <a href="#" data-logout>Sign out</a></div>
+      </div>
+
+      <div class="portal-save" id="portal-save" hidden></div>
+
+      <div class="portal-grid" id="portal-grid" aria-live="polite"></div>
+
+      <section class="cart-summary" id="cart-summary" aria-labelledby="cart-title">
+        <h2 id="cart-title">Your order</h2>
+        <div id="cart-body"></div>
+      </section>
+
+      <section class="orders" id="orders-section" aria-labelledby="orders-title">
+        <h2 id="orders-title">My orders</h2>
+        <div id="orders-list"></div>
+      </section>
+    </div>
+  </main>
+
+<!--#include dsd-footer -->
+</body>
+</html>
