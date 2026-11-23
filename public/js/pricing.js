@@ -1,7 +1,11 @@
 /*
- * HELLA GOOD! pricing rules — one file shared by the browser (display only)
+ * HELLA GOOD! pricing rules - one file shared by the browser (display only)
  * and the server (the source of truth for every charge).
  * All money is in integer cents.
+ *
+ * Retail (D2C): sold by the single pack, tiered (see quote()).
+ * Wholesale (DSD): NEVER single packs. Sold by the BOX - 15 packs of one flavor.
+ * A retail display holds 3 boxes, one of each flavor, so 45 packs.
  */
 (function (root, factory) {
   const api = factory();
@@ -15,13 +19,20 @@
   const MIN_QTY = 1;
   const MAX_QTY_PER_FLAVOR = 100;
 
+  // Wholesale units. A DSD orders boxes; a display is three boxes (one per flavor).
+  const PACKS_PER_BOX = 15;
+  const BOXES_PER_DISPLAY = 3;
+  const PACKS_PER_DISPLAY = PACKS_PER_BOX * BOXES_PER_DISPLAY; // 45
+  const MIN_BOXES = 1;
+  const MAX_BOXES_PER_FLAVOR = 90;
+
   const FLAVORS = Object.freeze([
     { id: 'blue-razz', name: 'Razzilicious', color: 'turquoise', image: '/images/pack-razzilicious.webp' },
     { id: 'strawberry-lemonade', name: 'Strawberry Lemonade', color: 'red', image: '/images/pack-strawberry-lemonade.webp' },
     { id: 'orange-pineapple-mango', name: 'Orange Pineapple Mango', color: 'orange', image: '/images/pack-orange-pineapple-mango.webp' },
   ]);
 
-  // Highest threshold first. Flavors mix and match toward the tier.
+  // Highest threshold first. Flavors mix and match toward the tier. (Retail only.)
   const TIERS = Object.freeze([
     { minPacks: 15, percentOff: 20 },
     { minPacks: 5, percentOff: 10 },
@@ -52,8 +63,9 @@
   }
 
   /**
-   * Validate raw input ({items:[{flavor, qty}]}). Returns {ok, items} or {ok:false, error}.
-   * Rejects unknown flavors, duplicates, non-integers and quantities outside 1–100 per flavor.
+   * Validate a DSD cart ({items:[{flavor, qty}]}). `qty` is BOXES, not packs.
+   * Returns {ok, items} or {ok:false, error}. Rejects unknown flavors, duplicate
+   * flavors, non-integers and quantities outside 1..MAX_BOXES_PER_FLAVOR.
    */
   function validateItems(items) {
     if (!Array.isArray(items) || items.length === 0) return { ok: false, error: 'Your cart is empty.' };
@@ -67,15 +79,15 @@
       if (seen.has(flavor.id)) return { ok: false, error: 'Each flavor can appear only once.' };
       seen.add(flavor.id);
       const qty = item.qty;
-      if (typeof qty !== 'number' || !Number.isInteger(qty) || qty < MIN_QTY || qty > MAX_QTY_PER_FLAVOR) {
-        return { ok: false, error: `Quantity for ${flavor.name} must be a whole number from ${MIN_QTY} to ${MAX_QTY_PER_FLAVOR}.` };
+      if (typeof qty !== 'number' || !Number.isInteger(qty) || qty < MIN_BOXES || qty > MAX_BOXES_PER_FLAVOR) {
+        return { ok: false, error: `Boxes of ${flavor.name} must be a whole number from ${MIN_BOXES} to ${MAX_BOXES_PER_FLAVOR}.` };
       }
       clean.push({ flavor: flavor.id, qty });
     }
     return { ok: true, items: clean };
   }
 
-  /** Price a validated cart. Shipping is a flat rate per order. */
+  /** Price a validated retail cart. Shipping is a flat rate per order. */
   function quote(items) {
     const totalPacks = items.reduce((n, i) => n + i.qty, 0);
     const tier = tierFor(totalPacks);
@@ -105,28 +117,64 @@
     };
   }
 
-  /** DSDs get a flat percent off every pack — no tiers, no mix-and-match thresholds. */
+  /** DSDs get a flat percent off every pack - no tiers, no mix-and-match thresholds. */
   const WHOLESALE_PERCENT_OFF_DEFAULT = 25;
 
   function wholesaleUnitCentsFor(percentOff) {
     return Math.round((BASE_UNIT_CENTS * (100 - percentOff)) / 100);
   }
 
-  /** Price a validated DSD cart: flat percent off each pack. The server calls this; the browser shows it. */
+  /** One box: 15 packs of one flavor. */
+  function boxCentsFor(percentOff) {
+    return wholesaleUnitCentsFor(percentOff) * PACKS_PER_BOX;
+  }
+
+  /** One display: three boxes, one per flavor (45 packs). */
+  function displayCentsFor(percentOff) {
+    return boxCentsFor(percentOff) * BOXES_PER_DISPLAY;
+  }
+
+  /**
+   * Price a validated DSD cart of boxes. The server calls this; the browser shows it.
+   * A complete display needs at least one box of each flavor.
+   */
   function quoteWholesale(items, percentOff = WHOLESALE_PERCENT_OFF_DEFAULT) {
-    const totalPacks = items.reduce((n, i) => n + i.qty, 0);
-    const unitCents = wholesaleUnitCentsFor(percentOff);
+    const boxCents = boxCentsFor(percentOff);
     const lines = items.map((i) => {
       const flavor = flavorById(i.flavor);
-      return { flavor: flavor.id, name: flavor.name, qty: i.qty, unitCents, lineCents: unitCents * i.qty };
+      return {
+        flavor: flavor.id,
+        name: flavor.name,
+        boxes: i.qty,
+        qty: i.qty,
+        packs: i.qty * PACKS_PER_BOX,
+        unitCents: boxCents,
+        lineCents: boxCents * i.qty,
+      };
     });
+    const totalBoxes = lines.reduce((n, l) => n + l.boxes, 0);
+    const totalPacks = lines.reduce((n, l) => n + l.packs, 0);
     const subtotalCents = lines.reduce((n, l) => n + l.lineCents, 0);
     const listCents = totalPacks * BASE_UNIT_CENTS;
-    const shippingCents = totalPacks > 0 ? SHIPPING_CENTS : 0;
+    const shippingCents = totalBoxes > 0 ? SHIPPING_CENTS : 0;
+    // Whole displays = the boxes you have of every flavor (so 2/2/1 is one display + one loose box).
+    const perFlavor = FLAVORS.map((f) => {
+      const line = lines.find((l) => l.flavor === f.id);
+      return line ? line.boxes : 0;
+    });
     return {
-      totalPacks, unitCents, percentOff, lines,
-      listCents, savingsCents: listCents - subtotalCents,
-      subtotalCents, shippingCents,
+      totalBoxes,
+      totalPacks,
+      displays: Math.min(...perFlavor),
+      boxCents,
+      displayCents: boxCents * BOXES_PER_DISPLAY,
+      unitCents: boxCents,
+      percentOff,
+      lines,
+      listCents,
+      savingsCents: listCents - subtotalCents,
+      subtotalCents,
+      shippingCents,
       totalCents: subtotalCents + shippingCents,
     };
   }
@@ -148,6 +196,11 @@
     SHIPPING_CENTS,
     MIN_QTY,
     MAX_QTY_PER_FLAVOR,
+    PACKS_PER_BOX,
+    BOXES_PER_DISPLAY,
+    PACKS_PER_DISPLAY,
+    MIN_BOXES,
+    MAX_BOXES_PER_FLAVOR,
     FLAVORS,
     TIERS,
     unitCentsFor,
@@ -160,6 +213,8 @@
     formatCents,
     WHOLESALE_PERCENT_OFF_DEFAULT,
     wholesaleUnitCentsFor,
+    boxCentsFor,
+    displayCentsFor,
     quoteWholesale,
   };
 });

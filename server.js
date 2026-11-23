@@ -77,12 +77,12 @@ function buildWholesaleSession(items, baseUrl, pct, userId) {
     line_items: q.lines.map((l) => {
       const flavor = pricing.flavorById(l.flavor);
       const product = {
-        name: `${PRODUCT_PREFIX}${l.name}`,
-        description: `DSD wholesale (${pct}% off) — ${pricing.formatCents(l.unitCents)} per pack`,
+        name: `${PRODUCT_PREFIX}${l.name} - Box of ${pricing.PACKS_PER_BOX}`,
+        description: `DSD wholesale (${pct}% off) - ${pricing.formatCents(l.unitCents)} per box, ${l.packs} packs`,
       };
       if (httpsBase && flavor) product.images = [baseUrl + flavor.image];
       return {
-        quantity: l.qty,
+        quantity: l.boxes,
         price_data: { currency: 'usd', unit_amount: l.unitCents, tax_behavior: 'exclusive', product_data: product },
       };
     }),
@@ -96,7 +96,10 @@ function buildWholesaleSession(items, baseUrl, pct, userId) {
     success_url: `${baseUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${baseUrl}/portal`,
     metadata: {
-      items: q.lines.map((l) => `${l.flavor}:${l.qty}`).join(','),
+      items: q.lines.map((l) => `${l.flavor}:${l.boxes}`).join(','),
+      units: 'box',
+      packs_per_box: String(pricing.PACKS_PER_BOX),
+      total_boxes: String(q.totalBoxes),
       total_packs: String(q.totalPacks),
       user_id: String(userId),
       wholesale_pct: String(pct),
@@ -319,7 +322,16 @@ function createApp(opts = {}) {
   app.post('/api/logout', (req, res) => { auth.clearSessionCookie(res); res.json({ ok: true }); });
 
   app.get('/api/me', requireAuth, async (req, res) => {
-    res.json({ ok: true, user: publicUser(req.user), wholesalePercentOff: await getWholesalePct() });
+    const pct = await getWholesalePct();
+    res.json({
+      ok: true,
+      user: publicUser(req.user),
+      wholesalePercentOff: pct,
+      boxCents: pricing.boxCentsFor(pct),
+      displayCents: pricing.displayCentsFor(pct),
+      packsPerBox: pricing.PACKS_PER_BOX,
+      packsPerDisplay: pricing.PACKS_PER_DISPLAY,
+    });
   });
 
   // Apply to become a DSD. Creates a pending application for Nav to approve.
@@ -437,7 +449,16 @@ function createApp(opts = {}) {
   });
 
   app.get('/api/admin/config', requireAuth, requireAdmin, async (req, res) => {
-    res.json({ ok: true, wholesalePercentOff: await getWholesalePct(), unitCents: pricing.wholesaleUnitCentsFor(await getWholesalePct()) });
+    const pct = await getWholesalePct();
+    res.json({
+      ok: true,
+      wholesalePercentOff: pct,
+      unitCents: pricing.wholesaleUnitCentsFor(pct),
+      boxCents: pricing.boxCentsFor(pct),
+      displayCents: pricing.displayCentsFor(pct),
+      packsPerBox: pricing.PACKS_PER_BOX,
+      packsPerDisplay: pricing.PACKS_PER_DISPLAY,
+    });
   });
 
   app.patch('/api/admin/config', requireAuth, requireAdmin, async (req, res) => {
@@ -472,6 +493,108 @@ function createApp(opts = {}) {
     } catch (err) {
       log.error('[checkout] Stripe error:', err && err.message);
       res.status(502).json({ ok: false, error: 'We could not start checkout right now. Please try again in a moment.' });
+    }
+  });
+
+  /* ---------- read-only feed for Jarvis and the ADDY admin ---------- */
+  // Off unless FEED_TOKEN is set. Bearer token, same pattern as AddyDSD's /api/jarvis feed.
+  // Nothing here writes; it is aggregate counts plus the last few orders/applications.
+  const FEED_TOKEN = String(process.env.FEED_TOKEN || '');
+  function feedTokenOk(given) {
+    if (!FEED_TOKEN || !given) return false;
+    const a = crypto.createHash('sha256').update(String(given)).digest();
+    const b = crypto.createHash('sha256').update(FEED_TOKEN).digest();
+    return crypto.timingSafeEqual(a, b);
+  }
+
+  app.get('/api/feed/summary', async (req, res) => {
+    if (!FEED_TOKEN) return res.status(404).json({ ok: false, error: 'Not found.' });
+    const h = String(req.headers.authorization || '');
+    const given = h.startsWith('Bearer ') ? h.slice(7) : String(req.headers['x-feed-token'] || '');
+    if (!feedTokenOk(given)) return res.status(401).json({ ok: false, error: 'Unauthorized.' });
+    if (!db.available()) return res.status(503).json({ ok: false, error: 'Database not configured.' });
+    const days = Math.min(365, Math.max(1, parseInt(req.query.days, 10) || 30));
+    const win = String(days);
+    try {
+      const pct = await getWholesalePct();
+      const totals = await db.one(`
+        SELECT
+          (SELECT COUNT(*)::int FROM users WHERE role='dsd' AND status='active')   AS dsds_active,
+          (SELECT COUNT(*)::int FROM users WHERE role='dsd' AND status='applied')  AS applications,
+          (SELECT COUNT(*)::int FROM users WHERE role='dsd' AND status='invited')  AS open_invites,
+          (SELECT COUNT(*)::int FROM users WHERE role='dsd' AND created_at > now() - ($1 || ' days')::interval) AS new_dsds,
+          (SELECT COUNT(*)::int FROM orders WHERE status <> 'cancelled' AND created_at > now() - ($1 || ' days')::interval) AS orders,
+          (SELECT COALESCE(SUM(total_cents),0)::bigint FROM orders WHERE status <> 'cancelled' AND created_at > now() - ($1 || ' days')::interval) AS revenue_cents
+      `, [win]);
+      const packs = await db.one(`
+        SELECT COALESCE(SUM((i->>'qty')::int),0)::int AS boxes
+          FROM orders o, jsonb_array_elements(o.items) i
+         WHERE o.status <> 'cancelled' AND o.created_at > now() - ($1 || ' days')::interval
+      `, [win]).catch(() => ({ boxes: 0 }));
+      const orders = await db.all(`
+        SELECT o.id, o.created_at, o.total_cents, o.status, o.items,
+               COALESCE(NULLIF(u.name,''), u.email) AS who, u.company, u.email
+          FROM orders o JOIN users u ON u.id = o.user_id
+         ORDER BY o.created_at DESC LIMIT 20
+      `).catch(() => []);
+      const applications = await db.all(`
+        SELECT id, created_at, name, company, email, phone, status
+          FROM users WHERE role='dsd' AND status IN ('applied','invited')
+         ORDER BY created_at DESC LIMIT 20
+      `).catch(() => []);
+      const recentDsds = await db.all(`
+        SELECT id, created_at, approved_at, last_login_at, name, company, email, status
+          FROM users WHERE role='dsd'
+         ORDER BY created_at DESC LIMIT 20
+      `).catch(() => []);
+      const boxCents = pricing.boxCentsFor(pct);
+      const boxes = Number(packs.boxes) || 0;
+      const revenueCents = Number(totals.revenue_cents) || 0;
+      const orderCount = Number(totals.orders) || 0;
+      res.json({
+        ok: true,
+        at: new Date().toISOString(),
+        window_days: days,
+        pricing: {
+          wholesalePercentOff: pct,
+          boxCents,
+          displayCents: boxCents * pricing.BOXES_PER_DISPLAY,
+          packsPerBox: pricing.PACKS_PER_BOX,
+          packsPerDisplay: pricing.PACKS_PER_DISPLAY,
+        },
+        totals: {
+          dsdsActive: Number(totals.dsds_active) || 0,
+          applications: Number(totals.applications) || 0,
+          openInvites: Number(totals.open_invites) || 0,
+          newDsds: Number(totals.new_dsds) || 0,
+          orders: orderCount,
+          revenueCents,
+          boxes,
+          packs: boxes * pricing.PACKS_PER_BOX,
+          avgOrderCents: orderCount ? Math.round(revenueCents / orderCount) : 0,
+        },
+        recentOrders: orders.map((o) => {
+          const items = Array.isArray(o.items) ? o.items : [];
+          const b = items.reduce((n, i) => n + (Number(i && i.qty) || 0), 0);
+          return {
+            id: o.id,
+            at: o.created_at,
+            who: o.who,
+            company: o.company,
+            email: o.email,
+            totalCents: Number(o.total_cents) || 0,
+            status: o.status,
+            boxes: b,
+            packs: b * pricing.PACKS_PER_BOX,
+            items,
+          };
+        }),
+        applications,
+        recentDsds,
+      });
+    } catch (e) {
+      log.error('[feed] summary failed:', e.message);
+      res.status(500).json({ ok: false, error: 'Could not build the feed.' });
     }
   });
 
@@ -550,13 +673,21 @@ function createApp(opts = {}) {
     next();
   };
 
-  app.get('/portal', portalGuard, (req, res) => sendPage(req, res, '/portal', {
-    vars: {
-      USER_NAME: site.escapeHtml(req.user.name || req.user.email),
-      USER_EMAIL: req.user.email,
-      HEADER_NAV: '<a class="dsd-link" href="/portal">Portal</a><a class="dsd-link muted" href="#" data-logout>Sign out</a>',
-    },
-  }));
+  app.get('/portal', portalGuard, async (req, res) => {
+    const pct = await getWholesalePct();
+    sendPage(req, res, '/portal', {
+      vars: {
+        USER_NAME: site.escapeHtml(req.user.name || req.user.email),
+        USER_EMAIL: req.user.email,
+        WHOLESALE_PCT: String(pct),
+        BOX_PRICE: pricing.formatCents(pricing.boxCentsFor(pct)),
+        DISPLAY_PRICE: pricing.formatCents(pricing.displayCentsFor(pct)),
+        PACKS_PER_BOX: String(pricing.PACKS_PER_BOX),
+        PACKS_PER_DISPLAY: String(pricing.PACKS_PER_DISPLAY),
+        HEADER_NAV: '<a class="dsd-link" href="/portal">Portal</a><a class="dsd-link muted" href="#" data-logout>Sign out</a>',
+      },
+    });
+  });
   app.get('/admin', adminGuard, (req, res) => sendPage(req, res, '/admin', {
     vars: {
       USER_NAME: site.escapeHtml(req.user.name || req.user.email),

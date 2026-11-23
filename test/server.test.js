@@ -156,3 +156,25 @@ test('orderSummary strips contact data but keeps the safe fields', () => {
   assert.equal(s.orderId, 'cs_x');
   assert.equal(s.total, '$1.00');
 });
+
+test('feed is hidden until FEED_TOKEN is set, then requires the bearer token', async () => {
+  delete process.env.FEED_TOKEN;
+  await withServer(createApp({ stripe: null, logger: quiet }), async (base) => {
+    const r = await fetch(base + '/api/feed/summary');
+    assert.equal(r.status, 404, 'no token configured: the route does not exist');
+  });
+
+  process.env.FEED_TOKEN = 'test-feed-token';
+  try {
+    await withServer(createApp({ stripe: null, logger: quiet }), async (base) => {
+      assert.equal((await fetch(base + '/api/feed/summary')).status, 401, 'no bearer');
+      assert.equal((await fetch(base + '/api/feed/summary', { headers: { authorization: 'Bearer wrong' } })).status, 401, 'wrong bearer');
+      const ok = await fetch(base + '/api/feed/summary', { headers: { authorization: 'Bearer test-feed-token' } });
+      assert.equal(ok.status, 503, 'right token, but there is no database in these tests');
+      const j = await ok.json();
+      assert.equal(j.ok, false);
+    });
+  } finally {
+    delete process.env.FEED_TOKEN;
+  }
+});

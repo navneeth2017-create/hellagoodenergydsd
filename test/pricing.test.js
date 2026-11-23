@@ -96,43 +96,66 @@ test('validation rejects bad input', () => {
   for (const b of bad) assert.equal(P.validateItems(b).ok, false, `should reject ${JSON.stringify(b)}`);
 });
 
-test('validation accepts the 1-100 range per flavor', () => {
+test('validation accepts 1-90 boxes per flavor', () => {
   assert.equal(P.validateItems(cart(['blue-razz', 1])).ok, true);
-  assert.equal(P.validateItems(cart(['blue-razz', 100], ['strawberry-lemonade', 100], ['orange-pineapple-mango', 100])).ok, true);
+  assert.equal(P.validateItems(cart(['blue-razz', 90], ['strawberry-lemonade', 90], ['orange-pineapple-mango', 90])).ok, true);
+  assert.equal(P.validateItems(cart(['blue-razz', 91])).ok, false);
 });
 
 // ── DSD wholesale pricing (flat percent off, no tiers) ──────────────────────
 
-test('wholesale default is 25% off: $4.49 per pack', () => {
+test('wholesale default is 25% off: $4.49 a pack, $67.35 a 15-pack box', () => {
   assert.equal(P.WHOLESALE_PERCENT_OFF_DEFAULT, 25);
   assert.equal(P.wholesaleUnitCentsFor(25), 449);
-  assert.equal(P.formatCents(449), '$4.49');
+  assert.equal(P.PACKS_PER_BOX, 15);
+  assert.equal(P.boxCentsFor(25), 6735);
+  assert.equal(P.formatCents(6735), '$67.35');
 });
 
-test('wholesale quote is flat: every pack the same price, no tier breakpoints', () => {
+test('a display is three boxes, one of each flavor: 45 packs, $202.05', () => {
+  assert.equal(P.BOXES_PER_DISPLAY, 3);
+  assert.equal(P.PACKS_PER_DISPLAY, 45);
+  assert.equal(P.displayCentsFor(25), 20205);
+});
+
+test('wholesale quote is flat per box, no tier breakpoints', () => {
   const one = P.quoteWholesale(cart(['blue-razz', 1]), 25);
-  assert.equal(one.unitCents, 449);
+  assert.equal(one.boxCents, 6735);
   assert.equal(one.percentOff, 25);
-  assert.equal(one.subtotalCents, 449);
-  assert.equal(one.savingsCents, 599 - 449);
+  assert.equal(one.totalBoxes, 1);
+  assert.equal(one.totalPacks, 15, 'a cart quantity of 1 is one box, never one pack');
+  assert.equal(one.subtotalCents, 6735);
+  assert.equal(one.listCents, 15 * 599);
+  assert.equal(one.savingsCents, 15 * 599 - 6735);
   assert.equal(one.shippingCents, 799);
-  assert.equal(one.totalCents, 449 + 799);
+  assert.equal(one.totalCents, 6735 + 799);
+  assert.equal(one.displays, 0);
 
   const ten = P.quoteWholesale(cart(['blue-razz', 10]), 25);
-  assert.equal(ten.subtotalCents, 4490);
-  assert.equal(ten.listCents, 5990);
-  assert.equal(ten.savingsCents, 1500);
-  assert.equal(ten.lines[0].unitCents, 449, 'still flat at 10 packs (no 5+/15+ tiers for DSDs)');
+  assert.equal(ten.subtotalCents, 67350);
+  assert.equal(ten.lines[0].unitCents, 6735, 'still flat at 10 boxes (no 5+/15+ tiers for DSDs)');
 });
 
-test('wholesale quote mixes flavors at one flat price', () => {
-  const q = P.quoteWholesale(cart(['blue-razz', 3], ['strawberry-lemonade', 2]), 25);
-  assert.equal(q.totalPacks, 5);
-  assert.deepEqual(q.lines.map((l) => l.unitCents), [449, 449]);
-  assert.equal(q.subtotalCents, 5 * 449);
+test('one box of each flavor is exactly one display', () => {
+  const q = P.quoteWholesale(cart(['blue-razz', 1], ['strawberry-lemonade', 1], ['orange-pineapple-mango', 1]), 25);
+  assert.equal(q.totalBoxes, 3);
+  assert.equal(q.totalPacks, 45);
+  assert.equal(q.displays, 1);
+  assert.equal(q.subtotalCents, 20205);
+  assert.deepEqual(q.lines.map((l) => l.unitCents), [6735, 6735, 6735]);
 });
 
-test('wholesale unit price rounds sensibly at other percentages', () => {
+test('2/2/1 boxes is one full display plus one loose box', () => {
+  const q = P.quoteWholesale(cart(['blue-razz', 2], ['strawberry-lemonade', 2], ['orange-pineapple-mango', 1]), 25);
+  assert.equal(q.displays, 1);
+  assert.equal(q.totalBoxes, 5);
+  assert.equal(q.totalPacks, 75);
+  assert.equal(q.subtotalCents, 5 * 6735);
+});
+
+test('wholesale box price rounds sensibly at other percentages', () => {
   assert.equal(P.wholesaleUnitCentsFor(0), 599);
+  assert.equal(P.boxCentsFor(0), 8985);
   assert.equal(P.wholesaleUnitCentsFor(40), 359); // 599 * 0.60 = 359.4 -> 359
+  assert.equal(P.boxCentsFor(40), 5385);
 });

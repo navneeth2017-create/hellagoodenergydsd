@@ -25,6 +25,15 @@
 
       <div class="portal-save" id="portal-save" hidden></div>
 
+      <div class="portal-display-bar">
+        <div>
+          <p><b>Box</b> &mdash; {{PACKS_PER_BOX}} packs of one flavor &middot; <b>{{BOX_PRICE}}</b></p>
+          <p><b>Display</b> &mdash; 3 boxes, one of each flavor ({{PACKS_PER_DISPLAY}} packs) &middot; <b>{{DISPLAY_PRICE}}</b></p>
+          <p class="muted">Single packs are not available at wholesale.</p>
+        </div>
+        <button type="button" class="btn btn-red" id="add-display">Add a full display</button>
+      </div>
+
       <div class="portal-grid" id="portal-grid" aria-live="polite"></div>
 
       <section class="cart-summary" id="cart-summary" aria-labelledby="cart-title">
