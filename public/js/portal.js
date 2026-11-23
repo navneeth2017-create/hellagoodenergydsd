@@ -12,7 +12,7 @@
   var pct = P.WHOLESALE_PERCENT_OFF_DEFAULT;
 
   function fmt(c) { return P.formatCents(c); }
-  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' }[c]; }); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&', '<': '<', '>': '>', '"': '"', "'": '&apos;' }[c]; }); }
 
   function loadCart() { try { return JSON.parse(localStorage.getItem('hgd_cart') || 'null') || { items: [] }; } catch (e) { return { items: [] }; } }
   function saveCart(c) { try { localStorage.setItem('hgd_cart', JSON.stringify(c)); } catch (e) {} }
