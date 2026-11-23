@@ -20,21 +20,33 @@
     <div class="wrap">
       <div class="portal-topbar">
         <h1>DSD <em>Portal</em></h1>
-        <div class="portal-user">Signed in as <b id="portal-user-name">{{USER_NAME}}</b> · <a href="#" data-logout>Sign out</a></div>
+        <div class="portal-user">Signed in as <b id="portal-user-name">{{USER_NAME}}</b> A� <a href="#" data-logout>Sign out</a></div>
       </div>
 
       <div class="portal-save" id="portal-save" hidden></div>
 
-      <div class="portal-display-bar">
-        <div>
-          <p><b>Box</b> &mdash; {{PACKS_PER_BOX}} packs of one flavor &middot; <b>{{BOX_PRICE}}</b></p>
-          <p><b>Display</b> &mdash; 3 boxes, one of each flavor ({{PACKS_PER_DISPLAY}} packs) &middot; <b>{{DISPLAY_PRICE}}</b></p>
-          <p class="muted">Single packs are not available at wholesale.</p>
+      <!-- THE LINE UP: Display as hero, boxes as secondary -->
+      <section class="line-up" aria-labelledby="lineup-title">
+        <h2 id="lineup-title" class="lineup-heading">The Line Up</h2>
+        
+        <div class="lineup-hero" role="img" aria-label="HELLA GOOD! Energy Gummies display - three flavors in one display box">
+          <div class="display-stage">
+            <div class="display-aura" aria-hidden="true"></div>
+            <picture class="display-img-wrap">
+              <source type="image/avif" srcset="/images/display.avif">
+              <img id="display-img" src="/images/display.webp" alt="HELLA GOOD! 3-flavor display box" width="720" height="720" fetchpriority="high">
+            </picture>
+          </div>
         </div>
-        <button type="button" class="btn btn-red" id="add-display">Add a full display</button>
-      </div>
 
-      <div class="portal-grid" id="portal-grid" aria-live="polite"></div>
+        <p class="lineup-sub">One display = 3 boxes, one of each flavor (45 packs) · <b id="lineup-display-price">{{DISPLAY_PRICE}}</b></p>
+
+        <div class="lineup-boxes" id="lineup-boxes" aria-label="Individual flavor boxes for reorders"></div>
+
+        <button type="button" class="btn btn-red btn-xl" id="add-display">Add a full display</button>
+      </section>
+
+      <div class="portal-grid" id="portal-grid" aria-live="polite" hidden></div>
 
       <section class="cart-summary" id="cart-summary" aria-labelledby="cart-title">
         <h2 id="cart-title">Your order</h2>

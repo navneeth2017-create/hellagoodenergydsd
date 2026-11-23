@@ -2,16 +2,17 @@
   'use strict';
   var P = window.HGGPricing;
   var grid = document.getElementById('portal-grid');
+  var lineupBoxes = document.getElementById('lineup-boxes');
   var cartBody = document.getElementById('cart-body');
   var saveEl = document.getElementById('portal-save');
   var ordersEl = document.getElementById('orders-list');
-  if (!P || !grid || !cartBody) return;
+  var displayPriceEl = document.getElementById('lineup-display-price');
+  if (!P || !grid || !lineupBoxes || !cartBody) return;
 
   var pct = P.WHOLESALE_PERCENT_OFF_DEFAULT;
-  var displayBtn = document.getElementById('add-display');
 
   function fmt(c) { return P.formatCents(c); }
-  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&', '<': '<', '>': '>', '"': '"', "'": ''' }[c]; }); }
 
   function loadCart() { try { return JSON.parse(localStorage.getItem('hgd_cart') || 'null') || { items: [] }; } catch (e) { return { items: [] }; } }
   function saveCart(c) { try { localStorage.setItem('hgd_cart', JSON.stringify(c)); } catch (e) {} }
@@ -33,7 +34,7 @@
   /** A display is one box of each flavor - 3 boxes, 45 packs. */
   function addDisplay() {
     var c = loadCart();
-    var atMax = c.items.some(function (x) { return x.qty >= P.MAX_BOXES_PER_FLAVOR; }) || P.FLAVORS.length > 0 && P.FLAVORS.some(function (f) { return boxesOf(c, f.id) + 1 > P.MAX_BOXES_PER_FLAVOR; });
+    var atMax = P.FLAVORS.some(function (f) { return boxesOf(c, f.id) + 1 > P.MAX_BOXES_PER_FLAVOR; });
     if (atMax) { alert('That is the most boxes we can take in one order.'); return; }
     P.FLAVORS.forEach(function (f) {
       var q = boxesOf(c, f.id) + 1;
@@ -46,14 +47,21 @@
 
   function renderGrid(c) {
     var boxC = P.boxCentsFor(pct);
-    var cards = P.FLAVORS.map(function (f) {
+    var dispC = P.displayCentsFor(pct);
+    if (displayPriceEl) displayPriceEl.textContent = fmt(dispC);
+
+    // Hero display image + aura already in HTML; just update price text
+    // Render secondary boxes (for reorders)
+    var boxHtml = P.FLAVORS.map(function (f) {
       var qty = boxesOf(c, f.id);
       var avif = f.image.replace(/\.webp$/, '.avif');
-      return '<article class="product-card" data-card="' + f.id + '">'
-        + '<picture><source type="image/avif" srcset="' + avif + '"><img src="' + f.image + '" alt="' + esc(f.name) + '"></picture>'
+      return '<article class="product-card box-card" data-card="' + f.id + '">'
+        + '<div class="box-img-wrap">'
+        + '<picture><source type="image/avif" srcset="' + avif + '"><img src="' + f.image + '" alt="' + esc(f.name) + '" loading="lazy"></picture>'
+        + '</div>'
         + '<h3>' + esc(f.name) + '</h3>'
         + '<p class="wprice"><b>' + fmt(boxC) + '</b> / box <small>(' + P.PACKS_PER_BOX + ' packs)</small></p>'
-        + '<p class="wprice-sub"><s>' + fmt(P.PACKS_PER_BOX * P.BASE_UNIT_CENTS) + '</s> retail &middot; ' + pct + '% off</p>'
+        + '<p class="wprice-sub">' + fmt(P.PACKS_PER_BOX * P.BASE_UNIT_CENTS) + ' retail &middot; ' + pct + '% off</p>'
         + '<div class="buy-row">'
         + '<div class="stepper"><button type="button" data-dec="' + f.id + '" aria-label="Decrease ' + esc(f.name) + ' boxes">&minus;</button>'
         + '<input type="number" inputmode="numeric" min="0" max="' + P.MAX_BOXES_PER_FLAVOR + '" value="' + qty + '" data-qty="' + f.id + '" aria-label="' + esc(f.name) + ' boxes">'
@@ -63,7 +71,7 @@
         + '<p class="packs-under">' + (qty ? qty + ' box' + (qty === 1 ? '' : 'es') + ' = ' + qty * P.PACKS_PER_BOX + ' packs' : '&nbsp;') + '</p>'
         + '</article>';
     }).join('');
-    grid.innerHTML = cards;
+    if (lineupBoxes) lineupBoxes.innerHTML = boxHtml;
   }
 
   function renderCart(c) {
@@ -88,7 +96,7 @@
       + displayNote
       + '<dl class="totals">'
       + '<div><dt>Subtotal <small>(' + q.totalPacks + ' packs)</small></dt><dd>' + fmt(q.subtotalCents) + '</dd></div>'
-      + '<div><dt>Retail</dt><dd class="muted"><s>' + fmt(q.listCents) + '</s></dd></div>'
+      + '<div><dt>Retail</dt><dd class="muted">' + fmt(q.listCents) + ' </dd></div>'
       + '<div><dt>Shipping <small>(flat rate)</small></dt><dd>' + fmt(q.shippingCents) + '</dd></div>'
       + '<div class="grand"><dt>Total</dt><dd>' + fmt(q.totalCents) + '</dd></div>'
       + '</dl>'
@@ -130,20 +138,26 @@
     renderCart(c);
   }
 
-  grid.addEventListener('click', function (e) {
-    var t = e.target.closest('[data-inc],[data-dec],[data-add]');
-    if (!t) return;
-    var flavor = t.getAttribute('data-inc') || t.getAttribute('data-dec') || t.getAttribute('data-add');
-    var q = boxesOf(loadCart(), flavor);
-    if (t.hasAttribute('data-inc')) setBoxes(flavor, q + 1);
-    else if (t.hasAttribute('data-dec')) setBoxes(flavor, q - 1);
-    else setBoxes(flavor, q + 1);
-  });
-  grid.addEventListener('input', function (e) {
-    var t = e.target.closest('[data-qty]');
-    if (!t) return;
-    setBoxes(t.getAttribute('data-qty'), parseInt(t.value, 10) || 0);
-  });
+  // Click handlers for lineup boxes (secondary)
+  if (lineupBoxes) {
+    lineupBoxes.addEventListener('click', function (e) {
+      var t = e.target.closest('[data-inc],[data-dec],[data-add]');
+      if (!t) return;
+      var flavor = t.getAttribute('data-inc') || t.getAttribute('data-dec') || t.getAttribute('data-add');
+      var q = boxesOf(loadCart(), flavor);
+      if (t.hasAttribute('data-inc')) setBoxes(flavor, q + 1);
+      else if (t.hasAttribute('data-dec')) setBoxes(flavor, q - 1);
+      else setBoxes(flavor, q + 1);
+    });
+    lineupBoxes.addEventListener('input', function (e) {
+      var t = e.target.closest('[data-qty]');
+      if (!t) return;
+      setBoxes(t.getAttribute('data-qty'), parseInt(t.value, 10) || 0);
+    });
+  }
+
+  // Add display button
+  var displayBtn = document.getElementById('add-display');
   if (displayBtn) displayBtn.addEventListener('click', addDisplay);
 
   // Boot: confirm the session, get the wholesale percent, load orders.
