@@ -71,10 +71,48 @@ async function getWholesalePct() {
 function buildWholesaleSession(items, baseUrl, pct, userId) {
   const q = pricing.quoteWholesale(items, pct);
   const httpsBase = baseUrl.startsWith('https://');
-  return {
-    mode: 'payment',
-    client_reference_id: String(userId),
-    line_items: q.lines.map((l) => {
+  // A complete display = exactly 1 box of each flavor (3 boxes, 45 packs).
+  const hasCompleteDisplay = q.displays >= 1 && q.lines.length === 3 &&
+    q.lines.every((l) => l.boxes === 1);
+
+  let line_items;
+  if (hasCompleteDisplay) {
+    // One Display line item (the bundle).
+    const displayProduct = {
+      name: `${PRODUCT_PREFIX}Display (3 boxes: Razzilicious, Strawberry Lemonade, Orange Pineapple Mango)`,
+      description: `DSD wholesale (${pct}% off) - ${pricing.formatCents(q.displayCents)} per display, ${q.totalPacks} packs (3 flavors × ${pricing.PACKS_PER_BOX})`,
+    };
+    if (httpsBase) {
+      // Use the first flavor's image as the display image.
+      const flavor = pricing.flavorById(q.lines[0].flavor);
+      if (flavor) displayProduct.images = [baseUrl + flavor.image];
+    }
+    line_items = [{
+      quantity: 1,
+      price_data: { currency: 'usd', unit_amount: q.displayCents, tax_behavior: 'exclusive', product_data: displayProduct },
+    }];
+    // Remaining loose boxes (if they ordered >1 display worth, e.g., 2/2/1 = 1 display + 1 loose box)
+    const looseBoxes = q.totalBoxes - 3;
+    if (looseBoxes > 0) {
+      // Find which flavors have extra boxes beyond 1.
+      q.lines.forEach((l) => {
+        const extra = l.boxes - 1;
+        if (extra <= 0) return;
+        const flavor = pricing.flavorById(l.flavor);
+        const product = {
+          name: `${PRODUCT_PREFIX}${l.name} - Box of ${pricing.PACKS_PER_BOX}`,
+          description: `DSD wholesale (${pct}% off) - ${pricing.formatCents(l.unitCents)} per box, ${l.packs} packs`,
+        };
+        if (httpsBase && flavor) product.images = [baseUrl + flavor.image];
+        line_items.push({
+          quantity: extra,
+          price_data: { currency: 'usd', unit_amount: l.unitCents, tax_behavior: 'exclusive', product_data: product },
+        });
+      });
+    }
+  } else {
+    // No complete display: individual box lines per flavor.
+    line_items = q.lines.map((l) => {
       const flavor = pricing.flavorById(l.flavor);
       const product = {
         name: `${PRODUCT_PREFIX}${l.name} - Box of ${pricing.PACKS_PER_BOX}`,
@@ -85,7 +123,13 @@ function buildWholesaleSession(items, baseUrl, pct, userId) {
         quantity: l.boxes,
         price_data: { currency: 'usd', unit_amount: l.unitCents, tax_behavior: 'exclusive', product_data: product },
       };
-    }),
+    });
+  }
+
+  return {
+    mode: 'payment',
+    client_reference_id: String(userId),
+    line_items,
     automatic_tax: { enabled: true },
     shipping_address_collection: { allowed_countries: ['US'] },
     shipping_options: [
@@ -97,13 +141,14 @@ function buildWholesaleSession(items, baseUrl, pct, userId) {
     cancel_url: `${baseUrl}/portal`,
     metadata: {
       items: q.lines.map((l) => `${l.flavor}:${l.boxes}`).join(','),
-      units: 'box',
+      units: hasCompleteDisplay ? 'display+box' : 'box',
       packs_per_box: String(pricing.PACKS_PER_BOX),
       total_boxes: String(q.totalBoxes),
       total_packs: String(q.totalPacks),
       user_id: String(userId),
       wholesale_pct: String(pct),
       unit_cents: String(q.unitCents),
+      has_display: String(hasCompleteDisplay),
     },
   };
 }
