@@ -676,6 +676,10 @@ function createApp(opts = {}) {
         SESSION: session ? '1' : '',
         WHOLESALE_PCT: String(pct),
         WHOLESALE_UNIT: pricing.formatCents(pricing.wholesaleUnitCentsFor(pct)),
+        BOX_PRICE: pricing.formatCents(pricing.boxCentsFor(pct)),
+        DISPLAY_PRICE: pricing.formatCents(pricing.displayCentsFor(pct)),
+        PACKS_PER_BOX: String(pricing.PACKS_PER_BOX),
+        PACKS_PER_DISPLAY: String(pricing.PACKS_PER_DISPLAY),
         HEADER_NAV: '<a class="dsd-link" href="/apply">Apply</a><a class="btn btn-red" style="padding:9px 18px;font-size:14px;" href="/login">DSD Login</a>',
       },
     });

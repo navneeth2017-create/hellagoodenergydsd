@@ -27,16 +27,17 @@ function stubStripe(session) {
   };
 }
 
-test('landing: DSD pitch, 25% off, $4.49 price, login + apply CTAs', async () => {
+test('landing: DSD pitch, box/display pricing, The Line Up, login + apply CTAs', async () => {
   await withServer(createApp({ stripe: null, publicUrl: ORIGIN, logger: quiet }), async (base) => {
     const r = await get(base, '/');
     assert.equal(r.status, 200);
     assert.equal(r.headers.get('cache-control'), 'no-cache');
     const html = await r.text();
     assert.match(html, /DSD Wholesale Portal/);
-    assert.match(html, /Wholesale for DSDs/);
+    assert.match(html, /The Line Up/);
     assert.match(html, /25% off/);
-    assert.match(html, /\$4\.49/);
+    assert.match(html, /\$67\.35/); // box price
+    assert.match(html, /\$202\.05/); // display price
     assert.match(html, /DSD Login/);
     assert.match(html, /Apply to become a DSD/);
     assert.ok(html.includes('href="/login"') && html.includes('href="/apply"'));

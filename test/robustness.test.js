@@ -53,7 +53,7 @@ test('every route has a deliberate Cache-Control', async () => {
   await withServer(createApp({ stripe: null, publicUrl: ORIGIN, logger: quiet }), async (base) => {
     const html = await (await get(base, '/')).text();
     const versionedCss = html.match(/\/css\/styles\.css\?v=[0-9a-f]{10}/)[0];
-    const versionedAvif = html.match(/\/images\/pack-strawberry-lemonade\.avif\?v=[0-9a-f]{10}/)[0];
+    const versionedAvif = html.match(/\/images\/display\.avif\?v=[0-9a-f]{10}/)[0];
     const YEAR = 'public, max-age=31536000, immutable';
     const cases = [
       ['GET', '/', 200, 'no-cache'],
@@ -171,8 +171,8 @@ test('images: every <picture> offers AVIF first and referenced files are served'
   await withServer(createApp({ stripe: null, publicUrl: ORIGIN, logger: quiet }), async (base) => {
     const html = await (await get(base, '/')).text();
     const pictures = html.match(/<picture>[\s\S]*?<\/picture>/g);
-    assert.ok(pictures.length >= 4, `found ${pictures.length}`);
-    for (const p of pictures) assert.match(p, /<source type="image\/avif" srcset="[^"]+\.avif\?v=[0-9a-f]{10}[^"]*"/);
+    assert.ok(pictures && pictures.length >= 1, `found ${pictures?.length ?? 0} <picture> elements`);
+    for (const p of pictures || []) assert.match(p, /<source type="image\/avif" srcset="[^"]+\.avif\?v=[0-9a-f]{10}[^"]*"/);
     const urls = new Set();
     for (const m of html.matchAll(/(?:src|href)="(\/images\/[^"]+)"/g)) urls.add(m[1]);
     for (const u of urls) {

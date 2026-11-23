@@ -3,16 +3,18 @@
 <head>
 <!--#include head -->
   <title>HELLA GOOD! Energy Gummies — DSD Wholesale Portal</title>
-  <meta name="description" content="Wholesale for DSDs: Marshawn Lynch HELLA GOOD! Energy Gummies at 25% off. Log in to order, or apply to become a DSD.">
+  <meta name="description" content="Wholesale for DSDs: Marshawn Lynch HELLA GOOD! Energy Gummies. The Line Up: displays (45 packs) and boxes (15 packs) at wholesale pricing.">
   {{ROBOTS}}
   <link rel="canonical" href="{{ORIGIN}}/">
   <link rel="stylesheet" href="/css/dsd.css">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="HELLA GOOD! Energy Gummies">
   <meta property="og:title" content="HELLA GOOD! Energy Gummies — DSD Wholesale Portal">
-  <meta property="og:description" content="Wholesale for DSDs: Marshawn Lynch HELLA GOOD! Energy Gummies at 25% off. Log in to order, or apply to become a DSD.">
+  <meta property="og:description" content="The Line Up: displays (45 packs) and boxes (15 packs) at wholesale pricing. Log in to order.">
   <meta property="og:image" content="{{ORIGIN}}/images/og-image.jpg">
   <script src="/js/auth.js" defer></script>
+  <script src="/js/pricing.js" defer></script>
+  <script src="/js/portal.js" defer></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -20,80 +22,69 @@
 <!--#include dsd-header -->
 
   <main id="main">
-    <section class="dsd-hero" aria-label="HELLA GOOD! Energy Gummies wholesale">
-      <div class="bolts" aria-hidden="true"></div>
-      <div class="wrap">
-        <p class="dsd-kicker">Wholesale for DSDs</p>
-        <h1>HELLA <em>GOOD!</em><br>Energy Gummies</h1>
-        <p class="lede">Marshawn Lynch HELLA GOOD! Energy Gummies &mdash; now available to distributors at <strong style="color:var(--text)">{{WHOLESALE_PCT}}% off</strong> retail. Log in to order, or apply to become a DSD.</p>
-        <div class="dsd-ctas">
+    <div class="wrap">
+      <!-- Hero: The Line Up heading + CTAs -->
+      <div class="portal-topbar" style="justify-content:center;text-align:center;gap:16px;">
+        <h1 style="font-size:40px;">The <em>Line Up</em></h1>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:8px;">
           <a class="btn btn-red btn-xl" href="/login">DSD Login <svg class="ico" aria-hidden="true"><use href="#i-bolt"/></svg></a>
           <a class="btn btn-ghost" href="/apply">Apply to become a DSD</a>
         </div>
-        <ul class="dsd-pills" aria-label="Flavors">
-          <li class="pill-turq">Razzilicious</li>
-          <li class="pill-red">Strawberry Lemonade</li>
-          <li class="pill-orange">Orange Pineapple Mango</li>
-        </ul>
       </div>
-    </section>
 
-    <section class="dsd-section" id="program" aria-labelledby="program-title">
-      <div class="wrap">
-        <p class="eyebrow center">The DSD program</p>
-        <h2 id="program-title" class="h2 center">How it <em>works</em></h2>
-        <div class="dsd-grid">
-          <article class="dsd-card">
-            <p class="dsd-num">1</p>
-            <h3>Apply or get invited</h3>
-            <p>Apply for a DSD account and we review it, or your account is created for you and you finish setup from an invite link.</p>
-          </article>
-          <article class="dsd-card">
-            <p class="dsd-num">2</p>
-            <h3>Log in</h3>
-            <p>Once approved, log in to your distributor portal &mdash; same look as the HELLA GOOD! shop, built for wholesale.</p>
-          </article>
-          <article class="dsd-card">
-            <p class="dsd-num">3</p>
-            <h3>Order at {{WHOLESALE_PCT}}% off</h3>
-            <p>Every pack is a flat {{WHOLESALE_PCT}}% off retail. Mix any flavors, check out securely with Stripe, and we ship it.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section class="dsd-section alt" id="flavors" aria-labelledby="flavors-title">
-      <div class="wrap">
-        <p class="eyebrow center">Three flavors, all equally as delicious</p>
-        <h2 id="flavors-title" class="h2 center">The <em>line</em></h2>
-        <div class="flavor-strip">
-          <div class="flavor-tile">
-            <picture><source type="image/avif" srcset="/images/pack-razzilicious.avif"><img src="/images/pack-razzilicious.webp" width="261" height="453" loading="lazy" decoding="async" alt="Razzilicious HELLA GOOD! Energy Gummies pack"></picture>
-            <h3>Razzilicious</h3>
-            <p class="price"><b>{{WHOLESALE_UNIT}}</b> / pack <s>$5.99</s></p>
-          </div>
-          <div class="flavor-tile">
-            <picture><source type="image/avif" srcset="/images/pack-strawberry-lemonade.avif"><img src="/images/pack-strawberry-lemonade.webp" width="309" height="513" loading="lazy" decoding="async" alt="Strawberry Lemonade HELLA GOOD! Energy Gummies pack"></picture>
-            <h3>Strawberry Lemonade</h3>
-            <p class="price"><b>{{WHOLESALE_UNIT}}</b> / pack <s>$5.99</s></p>
-          </div>
-          <div class="flavor-tile">
-            <picture><source type="image/avif" srcset="/images/pack-orange-pineapple-mango.avif"><img src="/images/pack-orange-pineapple-mango.webp" width="264" height="453" loading="lazy" decoding="async" alt="Orange Pineapple Mango HELLA GOOD! Energy Gummies pack"></picture>
-            <h3>Orange Pineapple Mango</h3>
-            <p class="price"><b>{{WHOLESALE_UNIT}}</b> / pack <s>$5.99</s></p>
+      <!-- DISPLAY HERO (centered, animated) -->
+      <section class="line-up" aria-labelledby="lineup-title">
+        <div class="lineup-hero" role="img" aria-label="HELLA GOOD! Energy Gummies display - three flavors in one display box">
+          <div class="display-stage">
+            <div class="display-aura" aria-hidden="true"></div>
+            <picture class="display-img-wrap">
+              <source type="image/avif" srcset="/images/display.avif">
+              <img id="display-img" src="/images/display.webp" alt="HELLA GOOD! 3-flavor display box" width="720" height="720" fetchpriority="high">
+            </picture>
           </div>
         </div>
-        <p class="wholesale-note"><b>{{WHOLESALE_PCT}}% off</b> every pack, flat &mdash; no minimums, no tiers. Log in to see your price.</p>
-      </div>
-    </section>
 
-    <section class="dsd-section" id="faq" aria-labelledby="faq-title">
-      <div class="wrap">
-        <h2 id="faq-title" class="h2 center">Questions?</h2>
-        <p class="lede center" style="max-width:520px;margin:0 auto;">Email us at <a href="mailto:admin@hellagoodenergy.com" style="color:var(--text)">admin@hellagoodenergy.com</a> to talk about becoming a HELLA GOOD! DSD.</p>
-        <div class="center" style="margin-top:22px;"><a class="btn btn-red btn-xl" href="/apply">Apply now <svg class="ico" aria-hidden="true"><use href="#i-bolt"/></svg></a></div>
-      </div>
-    </section>
+        <p class="lineup-sub">One display = 3 boxes, one of each flavor (45 packs) · <b id="lineup-display-price">{{DISPLAY_PRICE}}</b></p>
+
+        <!-- SECONDARY BOXES (for reorders) -->
+        <div class="lineup-boxes" id="lineup-boxes" aria-label="Individual flavor boxes for reorders"></div>
+
+        <p class="lineup-sub" style="margin-top:24px;color:var(--muted);font-size:14px;">Single packs not available at wholesale. <a href="/apply" style="color:var(--accent);">Apply</a> or <a href="/login" style="color:var(--accent);">log in</a> to order.</p>
+      </section>
+
+      <!-- Program + FAQ below the line up -->
+      <section class="dsd-section" id="program" aria-labelledby="program-title">
+        <div class="wrap">
+          <p class="eyebrow center">The DSD program</p>
+          <h2 id="program-title" class="h2 center">How it <em>works</em></h2>
+          <div class="dsd-grid">
+            <article class="dsd-card">
+              <p class="dsd-num">1</p>
+              <h3>Apply or get invited</h3>
+              <p>Apply for a DSD account and we review it, or your account is created for you and you finish setup from an invite link.</p>
+            </article>
+            <article class="dsd-card">
+              <p class="dsd-num">2</p>
+              <h3>Log in</h3>
+              <p>Once approved, log in to your distributor portal &mdash; same look as the HELLA GOOD! shop, built for wholesale.</p>
+            </article>
+            <article class="dsd-card">
+              <p class="dsd-num">3</p>
+              <h3>Order at {{WHOLESALE_PCT}}% off</h3>
+              <p>Every box is a flat {{WHOLESALE_PCT}}% off retail. Mix any flavors, check out securely with Stripe, and we ship it.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="dsd-section" id="faq" aria-labelledby="faq-title">
+        <div class="wrap">
+          <h2 id="faq-title" class="h2 center">Questions?</h2>
+          <p class="lede center" style="max-width:520px;margin:0 auto;">Email us at <a href="mailto:admin@hellagoodenergy.com" style="color:var(--text)">admin@hellagoodenergy.com</a> to talk about becoming a HELLA GOOD! DSD.</p>
+          <div class="center" style="margin-top:22px;"><a class="btn btn-red btn-xl" href="/apply">Apply now <svg class="ico" aria-hidden="true"><use href="#i-bolt"/></svg></a></div>
+        </div>
+      </section>
+    </div>
   </main>
 
 <!--#include dsd-footer -->
