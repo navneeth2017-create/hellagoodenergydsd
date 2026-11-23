@@ -1,16 +1,11 @@
 (function () {
   'use strict';
   var P = window.HGGPricing;
-  var grid = document.getElementById('portal-grid');
-  var lineupBoxes = document.getElementById('lineup-boxes');
-  var cartBody = document.getElementById('cart-body');
-  var saveEl = document.getElementById('portal-save');
-  var ordersEl = document.getElementById('orders-list');
-  var displayPriceEl = document.getElementById('lineup-display-price');
-  if (!P || !grid || !lineupBoxes || !cartBody) return;
+  if (!P) return;
 
   var pct = P.WHOLESALE_PERCENT_OFF_DEFAULT;
 
+  function $ (id) { return document.getElementById(id); }
   function fmt(c) { return P.formatCents(c); }
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&', '<': '<', '>': '>', '"': '"', "'": '&apos;' }[c]; }); }
 
@@ -48,10 +43,12 @@
   function renderGrid(c) {
     var boxC = P.boxCentsFor(pct);
     var dispC = P.displayCentsFor(pct);
+    var displayPriceEl = $('lineup-display-price');
     if (displayPriceEl) displayPriceEl.textContent = fmt(dispC);
 
-    // Hero display image + aura already in HTML; just update price text
-    // Render secondary boxes (for reorders)
+    var lineupBoxes = $('lineup-boxes');
+    if (!lineupBoxes) return;
+
     var boxHtml = P.FLAVORS.map(function (f) {
       var qty = boxesOf(c, f.id);
       var avif = f.image.replace(/\.webp$/, '.avif');
@@ -71,18 +68,24 @@
         + '<p class="packs-under">' + (qty ? qty + ' box' + (qty === 1 ? '' : 'es') + ' = ' + qty * P.PACKS_PER_BOX + ' packs' : '&nbsp;') + '</p>'
         + '</article>';
     }).join('');
-    if (lineupBoxes) lineupBoxes.innerHTML = boxHtml;
+    lineupBoxes.innerHTML = boxHtml;
   }
 
   function renderCart(c) {
     var q = P.quoteWholesale(c.items, pct);
-    saveEl.hidden = true;
+    var saveEl = $('portal-save');
+    var cartBody = $('cart-body');
+    if (!cartBody) return;
+
+    if (saveEl) saveEl.hidden = true;
     if (!q.totalBoxes) {
       cartBody.innerHTML = '<p class="cart-empty">Your cart is empty. A box is ' + P.PACKS_PER_BOX + ' packs of one flavor.</p>';
       return;
     }
-    saveEl.hidden = false;
-    saveEl.innerHTML = 'Saving <b>' + fmt(q.savingsCents) + '</b> vs retail &mdash; <b>' + pct + '% off</b> every box.';
+    if (saveEl) {
+      saveEl.hidden = false;
+      saveEl.innerHTML = 'Saving <b>' + fmt(q.savingsCents) + '</b> vs retail &mdash; <b>' + pct + '% off</b> every box.';
+    }
     var lines = q.lines.map(function (l) {
       return '<li><span>' + esc(l.name) + ' &times; ' + l.boxes + ' box' + (l.boxes === 1 ? '' : 'es')
         + ' <small>(' + l.packs + ' packs)</small></span><span>' + fmt(l.lineCents) + '</span></li>';
@@ -102,24 +105,26 @@
       + '</dl>'
       + '<button type="button" class="btn btn-red btn-block btn-xl" id="checkout-btn">Checkout</button>'
       + '<p class="muted" style="font-size:12.5px;margin:10px 0 0;">Secure checkout by Stripe. Tax is calculated at checkout.</p>';
-    var cb = document.getElementById('checkout-btn');
+    var cb = $('checkout-btn');
     if (cb) cb.addEventListener('click', checkout);
   }
 
   function checkout() {
     var c = loadCart();
     if (!c.items.length) return;
-    var btn = document.getElementById('checkout-btn');
+    var btn = $('checkout-btn');
     if (btn) { btn.disabled = true; btn.textContent = 'Starting checkout...'; }
     window.hgd.api('/api/checkout', { method: 'POST', body: JSON.stringify({ items: c.items }) }).then(function (r) {
       if (r.ok && r.data.url) { window.location.href = r.data.url; return; }
       if (btn) { btn.disabled = false; btn.textContent = 'Checkout'; }
-      if (r.data && r.data.code === 'checkout_unavailable') { saveEl.hidden = false; saveEl.innerHTML = r.data.message || 'Checkout opens soon.'; }
+      if (r.data && r.data.code === 'checkout_unavailable') { var se = $('portal-save'); if (se) { se.hidden = false; se.innerHTML = r.data.message || 'Checkout opens soon.'; } }
       else alert((r.data && r.data.error) || 'Could not start checkout.');
     }).catch(function () { if (btn) { btn.disabled = false; btn.textContent = 'Checkout'; } alert('No connection - try again.'); });
   }
 
   function renderOrders(orders) {
+    var ordersEl = $('orders-list');
+    if (!ordersEl) return;
     if (!orders || !orders.length) { ordersEl.innerHTML = '<p class="muted-block">No orders yet.</p>'; return; }
     ordersEl.innerHTML = orders.map(function (o) {
       var items = (Array.isArray(o.items) ? o.items : []).map(function (i) {
@@ -138,33 +143,32 @@
     renderCart(c);
   }
 
-  // Click handlers for lineup boxes (secondary)
-  if (lineupBoxes) {
-    lineupBoxes.addEventListener('click', function (e) {
-      var t = e.target.closest('[data-inc],[data-dec],[data-add]');
-      if (!t) return;
-      var flavor = t.getAttribute('data-inc') || t.getAttribute('data-dec') || t.getAttribute('data-add');
-      var q = boxesOf(loadCart(), flavor);
-      if (t.hasAttribute('data-inc')) setBoxes(flavor, q + 1);
-      else if (t.hasAttribute('data-dec')) setBoxes(flavor, q - 1);
-      else setBoxes(flavor, q + 1);
-    });
-    lineupBoxes.addEventListener('input', function (e) {
-      var t = e.target.closest('[data-qty]');
-      if (!t) return;
-      setBoxes(t.getAttribute('data-qty'), parseInt(t.value, 10) || 0);
-    });
-  }
+  // Event delegation for lineup boxes (secondary)
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-inc],[data-dec],[data-add]');
+    if (!t) return;
+    var flavor = t.getAttribute('data-inc') || t.getAttribute('data-dec') || t.getAttribute('data-add');
+    var q = boxesOf(loadCart(), flavor);
+    if (t.hasAttribute('data-inc')) setBoxes(flavor, q + 1);
+    else if (t.hasAttribute('data-dec')) setBoxes(flavor, q - 1);
+    else setBoxes(flavor, q + 1);
+  });
+  document.addEventListener('input', function (e) {
+    var t = e.target.closest('[data-qty]');
+    if (!t) return;
+    setBoxes(t.getAttribute('data-qty'), parseInt(t.value, 10) || 0);
+  });
 
   // Add display button
-  var displayBtn = document.getElementById('add-display');
+  var displayBtn = $('add-display');
   if (displayBtn) displayBtn.addEventListener('click', addDisplay);
 
   // Boot: confirm the session, get the wholesale percent, load orders.
   window.hgd.api('/api/me').then(function (r) {
     if (!r.ok) { window.location.href = '/login?next=/portal'; return; }
     pct = Number(r.data.wholesalePercentOff) || P.WHOLESALE_PERCENT_OFF_DEFAULT;
-    if (r.data.user && r.data.user.name) { var n = document.getElementById('portal-user-name'); if (n) n.textContent = r.data.user.name; }
+    var n = $('portal-user-name');
+    if (n && r.data.user && r.data.user.name) n.textContent = r.data.user.name;
     render();
     return window.hgd.api('/api/orders');
   }).then(function (r) {
