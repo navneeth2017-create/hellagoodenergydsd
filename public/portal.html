@@ -25,28 +25,12 @@
 
       <div class="portal-save" id="portal-save" hidden></div>
 
-      <!-- THE LINE UP: Display as hero, boxes as secondary -->
+      <!-- FLAVOR BOXES GRID -->
       <section class="line-up" aria-labelledby="lineup-title">
-        <h2 id="lineup-title" class="lineup-heading">The Line Up</h2>
-        
-        <div class="lineup-hero" role="img" aria-label="HELLA GOOD! Energy Gummies display - three flavors in one display box">
-          <div class="display-stage">
-            <div class="display-aura" aria-hidden="true"></div>
-            <picture class="display-img-wrap">
-              <source type="image/avif" srcset="/images/display.avif">
-              <img id="display-img" src="/images/display.webp" alt="HELLA GOOD! 3-flavor display box" width="720" height="720" fetchpriority="high">
-            </picture>
-          </div>
-        </div>
-
-        <p class="lineup-sub">One display = 3 boxes, one of each flavor (45 packs) · <b id="lineup-display-price">{{DISPLAY_PRICE}}</b></p>
-
         <div class="lineup-boxes" id="lineup-boxes" aria-label="Individual flavor boxes for reorders"></div>
 
-        <button type="button" class="btn btn-red btn-xl" id="add-display">Add a full display</button>
+        <p class="lineup-sub" style="margin-top:24px;color:var(--muted);font-size:14px;text-align:center;">Single packs not available at wholesale.</p>
       </section>
-
-      <div class="portal-grid" id="portal-grid" aria-live="polite" hidden></div>
 
       <section class="cart-summary" id="cart-summary" aria-labelledby="cart-title">
         <h2 id="cart-title">Your order</h2>
