@@ -40,40 +40,24 @@
     render();
   }
 
-  function renderGrid(c) {
-    var boxC = P.boxCentsFor(pct);
-    var dispC = P.displayCentsFor(pct);
-    var displayPriceEl = $('lineup-display-price');
-    if (displayPriceEl) displayPriceEl.textContent = fmt(dispC);
-
-    var lineupBoxes = $('lineup-boxes');
-    if (!lineupBoxes) return;
-
-    var boxHtml = P.FLAVORS.map(function (f) {
+  /**
+   * The cards themselves are rendered on the server (lib/lineup.js), so all this
+   * has to do is paint the cart's quantities back onto them.
+   */
+  function syncCards(c) {
+    P.FLAVORS.forEach(function (f) {
       var qty = boxesOf(c, f.id);
-      var avif = f.image.replace(/\.webp$/, '.avif');
-      var boxAvif = f.boxImage ? f.boxImage.replace(/\.webp$/, '.avif') : avif;
-      return '<article class="product-card box-card" data-card="' + f.id + '">'
-        + '<div class="box-img-wrap">'
-        + '<div class="dual-img">'
-        + '<picture><source type="image/avif" srcset="' + avif + '"><img src="' + f.image + '" alt="' + esc(f.name) + ' pack" loading="lazy" class="pack-img"></picture>'
-        + '<span class="img-label">Pack</span>'
-        + (f.boxImage ? '<picture><source type="image/avif" srcset="' + boxAvif + '"><img src="' + f.boxImage + '" alt="' + esc(f.name) + ' box" loading="lazy" class="box-img"></picture><span class="img-label">Box (15 packs)</span>' : '')
-        + '</div>'
-        + '</div>'
-        + '<h3>' + esc(f.name) + '</h3>'
-        + '<p class="wprice"><b>' + fmt(boxC) + '</b> / box <small>(' + P.PACKS_PER_BOX + ' packs)</small></p>'
-        + '<p class="wprice-sub">' + fmt(P.PACKS_PER_BOX * P.BASE_UNIT_CENTS) + ' retail &middot; ' + pct + '% off</p>'
-        + '<div class="buy-row">'
-        + '<div class="stepper"><button type="button" data-dec="' + f.id + '" aria-label="Decrease ' + esc(f.name) + ' boxes">&minus;</button>'
-        + '<input type="number" inputmode="numeric" min="0" max="' + P.MAX_BOXES_PER_FLAVOR + '" value="' + qty + '" data-qty="' + f.id + '" aria-label="' + esc(f.name) + ' boxes">'
-        + '<button type="button" data-inc="' + f.id + '" aria-label="Increase ' + esc(f.name) + ' boxes">+</button></div>'
-        + '<button type="button" class="btn btn-red" data-add="' + f.id + '">Add box</button>'
-        + '</div>'
-        + '<p class="packs-under">' + (qty ? qty + ' box' + (qty === 1 ? '' : 'es') + ' = ' + qty * P.PACKS_PER_BOX + ' packs' : '&nbsp;') + '</p>'
-        + '</article>';
-    }).join('');
-    lineupBoxes.innerHTML = boxHtml;
+      var input = document.querySelector('[data-qty="' + f.id + '"]');
+      if (input && document.activeElement !== input) input.value = qty;
+      var note = document.querySelector('[data-note="' + f.id + '"]');
+      if (note) {
+        note.textContent = qty
+          ? qty + ' box' + (qty === 1 ? '' : 'es') + ' = ' + qty * P.PACKS_PER_BOX + ' packs'
+          : '\u00a0';
+      }
+    });
+    var displayPriceEl = $('lineup-display-price');
+    if (displayPriceEl) displayPriceEl.textContent = fmt(P.displayCentsFor(pct));
   }
 
   function renderCart(c) {
@@ -144,7 +128,7 @@
 
   function render() {
     var c = loadCart();
-    renderGrid(c);
+    syncCards(c);
     renderCart(c);
   }
 
@@ -169,14 +153,20 @@
   if (displayBtn) displayBtn.addEventListener('click', addDisplay);
 
   // Boot: confirm the session, get the wholesale percent, load orders.
-  window.hgd.api('/api/me').then(function (r) {
-    if (!r.ok) { window.location.href = '/login?next=/portal'; return; }
-    pct = Number(r.data.wholesalePercentOff) || P.WHOLESALE_PERCENT_OFF_DEFAULT;
-    var n = $('portal-user-name');
-    if (n && r.data.user && r.data.user.name) n.textContent = r.data.user.name;
+  // Only on the signed-in page: /api/me 401s for visitors, and bouncing the
+  // public landing to /login is exactly what that used to do.
+  if (document.body.dataset.page === 'portal') {
+    window.hgd.api('/api/me').then(function (r) {
+      if (!r.ok) { window.location.href = '/login?next=/portal'; return; }
+      pct = Number(r.data.wholesalePercentOff) || P.WHOLESALE_PERCENT_OFF_DEFAULT;
+      var n = $('portal-user-name');
+      if (n && r.data.user && r.data.user.name) n.textContent = r.data.user.name;
+      render();
+      return window.hgd.api('/api/orders');
+    }).then(function (r) {
+      if (r && r.ok) renderOrders(r.data.orders);
+    }).catch(function () { render(); });
+  } else {
     render();
-    return window.hgd.api('/api/orders');
-  }).then(function (r) {
-    if (r && r.ok) renderOrders(r.data.orders);
-  }).catch(function () { render(); });
+  }
 })();

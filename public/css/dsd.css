@@ -1,98 +1,398 @@
-/* ========================================== */
-/* LANDING: The Line Up */
-.line-up { margin: 24px 0 32px; }
-.lineup-heading { font-family: var(--display); font-weight: 900; font-style: italic; text-transform: uppercase; font-size: 32px; text-align: center; margin: 0 0 24px; color: var(--text); }
-.lineup-heading em { color: var(--red); }
+/* ==========================================================================
+   HELLA GOOD! DSD portal
+   The wholesale landing and shop. Deliberately built on the storefront's own
+   tokens and card components (styles.css), so it reads as the same brand:
+   condensed italic display type, red accents, black surfaces, glow instead of
+   borders.
+   ========================================================================== */
 
-/* Display hero: centered stand image */
-.display-hero { text-align: center; margin: 0 auto 40px; max-width: 720px; }
-@media (max-width: 640px) { .display-hero { margin-bottom: 24px; } }
-@media (min-width: 641px) and (max-width: 1024px) { .display-hero { margin-bottom: 32px; } }
-.display-stage { 
-  position: relative; 
-  border-radius: 16px; 
-  overflow: hidden; 
-  background: var(--card); 
-  display: inline-block; 
-  max-width: 100%; 
+/* ---------- Header bits ---------- */
+.dsd-link {
+  color: var(--muted);
+  font-weight: 600;
+  text-decoration: none;
+  padding: 8px 10px;
+  border-radius: 10px;
 }
-.display-aura { 
-  position: absolute; 
-  inset: -30px; 
-  border-radius: 50%; 
-  background: radial-gradient(ellipse at center, var(--red) 0%, transparent 70%); 
-  opacity: 0.3; 
-  pointer-events: none; 
-  animation: aura-pulse 4s ease-in-out infinite; 
-}
-.display-img-wrap { 
-  border-radius: 16px; 
-  overflow: hidden; 
-  background: var(--card); 
-  display: inline-block; 
-}
-.display-img-wrap img { 
-  display: block; 
-  width: 100%; 
-  height: auto; 
-  border-radius: 16px; 
-  background: var(--card);
-  filter: brightness(0.92) contrast(1.05);
-}
-.lineup-sub { text-align: center; font-size: 16px; color: var(--muted); margin: 16px 0 24px; }
-.lineup-sub b { color: var(--text); font-size: 20px; }
+.dsd-link:hover { color: #fff; }
 
-.lineup-boxes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--line); }
-.lineup-boxes .product-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; text-align: center; display: flex; flex-direction: column; gap: 10px; }
-.lineup-boxes .box-img-wrap { width: 100%; max-width: 220px; margin: 0 auto 10px; border-radius: 12px; overflow: hidden; background: var(--bg); }
-.lineup-boxes .box-img-wrap img { display: block; width: 100%; height: auto; transition: transform 0.3s var(--ease); }
-.lineup-boxes .box-img-wrap:hover img { transform: scale(1.03); }
-
-/* Dual image layout: pack on top, box below - stacked vertically */
-.lineup-boxes .dual-img { display: flex; flex-direction: column; gap: 6px; width: 100%; }
-.lineup-boxes .dual-img picture { width: 100%; }
-.lineup-boxes .dual-img img { 
-  width: 100%; 
-  height: auto; 
-  aspect-ratio: 3/4; 
-  object-fit: cover; 
-  border-radius: 10px; 
-  background: var(--card);
-  filter: brightness(0.92) contrast(1.05);
-  transition: transform 0.3s var(--ease); 
+.dsd-eyebrow {
+  margin: 0 0 10px;
+  font: 800 12px/1 var(--display);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--red);
 }
-.lineup-boxes .dual-img:hover img { transform: scale(1.02); filter: brightness(0.95) contrast(1.08); }
-.lineup-boxes .dual-img .img-label { font-size: 11px; font-weight: 700; text-transform: uppercase; color: var(--muted); text-align: center; letter-spacing: 0.5px; }
-.lineup-boxes .pack-img { }
-.lineup-boxes .box-img { }
-.lineup-boxes h3 { font-family: var(--display); font-weight: 800; font-style: italic; text-transform: uppercase; font-size: 20px; margin: 0 0 4px; }
-.lineup-boxes .wprice { font-size: 15px; color: var(--muted); }
-.lineup-boxes .wprice b { font-size: 22px; color: var(--text); }
-.lineup-boxes .wprice small { font-size: 12.5px; color: var(--dim); }
-.lineup-boxes .wprice-sub { margin: -4px 0 0; font-size: 12.5px; color: var(--dim); }
-.lineup-boxes .stepper { display: inline-flex; align-items: center; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
-.lineup-boxes .stepper button { width: 34px; height: 36px; background: transparent; border: 0; color: var(--text); font-size: 18px; cursor: pointer; }
-.lineup-boxes .stepper button:hover { background: rgba(255,255,255,0.06); }
-.lineup-boxes .stepper input { width: 40px; text-align: center; background: transparent; border: 0; color: var(--text); font: inherit; font-size: 15px; -moz-appearance: textfield; }
-.lineup-boxes .stepper input::-webkit-outer-spin-button, .lineup-boxes .stepper input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.lineup-boxes .buy-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: auto; }
-.lineup-boxes .btn { width: 100%; }
-.lineup-boxes .packs-under { margin: 4px 0 0; min-height: 16px; font-size: 12.5px; color: var(--dim); }
 
-/* Motion: entrance and hover (skipped under reduced motion) */
+/* ---------- Hero ---------- */
+.dsd-hero {
+  position: relative;
+  overflow: hidden;
+  background: #000;
+  padding: clamp(16px, 3vw, 36px) 0 clamp(22px, 3.5vw, 44px);
+}
+.dsd-hero-glow {
+  position: absolute;
+  inset: -14% -10% auto -10%;
+  height: 82%;
+  background: radial-gradient(52% 60% at 50% 38%, rgba(232, 20, 28, 0.24), transparent 72%);
+  pointer-events: none;
+}
+
+/* Every hero child is centred by the flex column, not by auto margins or text-align. */
+.dsd-hero-inner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.dsd-hero-title {
+  margin: 0 0 clamp(10px, 2vw, 16px);
+  font: italic 900 clamp(34px, 7.4vw, 68px)/0.92 var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  text-wrap: balance;
+}
+.dsd-hero-title em {
+  font-style: italic;
+  color: var(--red);
+  text-shadow: 0 0 30px rgba(232, 20, 28, 0.5);
+}
+
+.dsd-hero-sub {
+  margin: 0;
+  max-width: 36em;
+  color: #cfcfd6;
+  font-size: clamp(14px, 1.5vw, 16px);
+  line-height: 1.55;
+}
+.dsd-hero-sub b { color: #fff; }
+
+/* The display stand is tall and narrow. The stage hugs the image and the glow
+   spills out around it, so the space reads as a spotlight instead of a gap. */
+.dsd-stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: fit-content;
+  max-width: 100%;
+  padding: clamp(10px, 2vw, 18px) 0;
+  isolation: isolate;
+}
+.dsd-stage-glow {
+  position: absolute;
+  inset: 8% -68% 0 -68%;
+  z-index: -1;
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(232, 20, 28, 0.55), rgba(232, 20, 28, 0.12) 58%, transparent 76%);
+  filter: blur(16px);
+}
+.dsd-stage-img { display: block; line-height: 0; }
+.dsd-stage-img img {
+  width: auto;
+  /* The stand is a 1:2.7 vertical object, so its height is what controls how
+     substantial it looks. Kept tall enough to read on a phone, capped so it
+     does not push the rest of the hero off a large screen. */
+  height: clamp(290px, 44vh, 540px);
+  max-width: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 28px 38px rgba(0, 0, 0, 0.8));
+}
+
+.dsd-hero-price {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  margin: clamp(8px, 1.5vw, 14px) 0 0;
+}
+.dsd-hero-price-label {
+  font: 800 11.5px/1 var(--display);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--dim);
+}
+.dsd-hero-price b {
+  font: 900 clamp(26px, 4.6vw, 38px)/1 var(--display);
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+.dsd-hero-price-note { font-size: 13px; color: var(--muted); }
+
+/* Same height and same width on both buttons. */
+.dsd-hero-ctas {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: clamp(16px, 3vw, 24px);
+}
+.dsd-hero-ctas .btn {
+  flex: 0 1 224px;
+  min-height: 50px;
+  font-size: 19px;
+}
+@media (max-width: 400px) {
+  .dsd-hero-ctas .btn { flex: 1 1 100%; }
+}
+
+/* ---------- The Line Up ---------- */
+.dsd-lineup {
+  position: relative;
+  background:
+    linear-gradient(#000, rgba(0, 0, 0, 0) 220px),
+    radial-gradient(90% 60% at 50% 0%, #170406 0%, #000 62%);
+  padding: clamp(24px, 4vw, 48px) 0 clamp(32px, 5vw, 56px);
+}
+.dsd-lineup-head { text-align: center; margin-bottom: clamp(20px, 3.5vw, 32px); }
+
+/* Red chevron banner, same shape as the storefront's new-drop banner. */
+.dsd-banner {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  margin: 0 0 10px;
+  padding: 8px 26px 10px;
+  font: italic 900 clamp(30px, 7.6vw, 64px)/1 var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.005em;
+  color: #fff;
+  isolation: isolate;
+}
+.dsd-banner::before,
+.dsd-banner::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  clip-path: polygon(14px 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 14px 100%, 0 50%);
+}
+.dsd-banner::before {
+  background: linear-gradient(90deg, var(--red), #ff5a3c, var(--red));
+  filter: drop-shadow(0 0 18px rgba(232, 20, 28, 0.7));
+}
+.dsd-banner::after { inset: 2px; background: linear-gradient(180deg, #1a1a1f, #050506); }
+.dsd-banner span {
+  background: linear-gradient(180deg, #fff 40%, #b9b9c2);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.dsd-banner-sub {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 0;
+  font: 800 12.5px/1 var(--display);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #e7e7ea;
+}
+.dsd-banner-sub::before,
+.dsd-banner-sub::after {
+  content: "";
+  height: 1px;
+  width: 24px;
+  background: linear-gradient(90deg, transparent, var(--red));
+}
+.dsd-banner-sub::after { transform: scaleX(-1); }
+
+.dsd-lineup-note {
+  margin: 10px auto 0;
+  max-width: 40em;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+/* ---------- Flavor cards ---------- */
+.flavor-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+@media (min-width: 720px) {
+  .flavor-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.flavor-grid .flavor-card { height: 100%; align-content: center; }
+.flavor-body { min-width: 0; }
+.flavor-grid .flavor-img { height: clamp(116px, 15vw, 180px); }
+.flavor-grid .flavor-img img { filter: drop-shadow(0 12px 18px rgba(0, 0, 0, 0.6)); }
+.flavor-grid .flavor-name { font-size: clamp(19px, 2.2vw, 25px); }
+.flavor-grid .price-now { font-size: clamp(26px, 3vw, 32px); }
+.flavor-grid .flavor-price { flex-wrap: wrap; }
+.flavor-grid .flavor-card .btn-flavor { min-height: 40px; font-size: 17px; }
+
+/* ---------- Display upsell ---------- */
+.dsd-display-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: clamp(18px, 3vw, 28px);
+  padding: clamp(18px, 3vw, 26px);
+  border: 1px solid var(--line-2);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(70% 150% at 0% 50%, rgba(232, 20, 28, 0.22), transparent 66%),
+    #040405;
+}
+.dsd-display-cta-title {
+  margin: 0 0 4px;
+  font: italic 900 clamp(20px, 2.4vw, 26px)/1 var(--display);
+  text-transform: uppercase;
+}
+.dsd-display-cta-sub { margin: 0; max-width: 52ch; color: var(--muted); font-size: 14px; line-height: 1.5; }
+.dsd-display-cta-sub b { color: #fff; }
+.dsd-display-cta .btn { flex: 0 0 auto; min-width: 210px; min-height: 46px; font-size: 18px; }
+@media (max-width: 600px) {
+  .dsd-display-cta .btn { flex: 1 1 100%; }
+}
+
+/* ---------- Sections ---------- */
+.dsd-section { background: #000; padding: clamp(32px, 5vw, 60px) 0; }
+.dsd-section-head { text-align: center; margin-bottom: clamp(20px, 3.5vw, 30px); }
+.dsd-h2 {
+  margin: 0 0 clamp(10px, 2vw, 16px);
+  font: italic 900 clamp(28px, 4.6vw, 46px)/1 var(--display);
+  text-transform: uppercase;
+  text-align: center;
+}
+.dsd-h2 em { color: var(--red); }
+
+.dsd-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 14px;
+}
+@media (min-width: 720px) {
+  .dsd-steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+.dsd-step {
+  position: relative;
+  padding: clamp(18px, 3vw, 26px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #040405;
+  overflow: hidden;
+}
+.dsd-step::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--red), transparent);
+}
+.dsd-step-num {
+  display: block;
+  margin-bottom: 8px;
+  font: italic 900 40px/1 var(--display);
+  color: var(--red);
+}
+.dsd-step h3 {
+  margin: 0 0 6px;
+  font: italic 800 clamp(18px, 2.1vw, 22px)/1.05 var(--display);
+  text-transform: uppercase;
+}
+.dsd-step p { margin: 0; color: var(--muted); font-size: 14.5px; line-height: 1.55; }
+
+.dsd-closer { text-align: center; padding-bottom: clamp(44px, 7vw, 80px); }
+.dsd-closer .dsd-h2 { margin-bottom: 8px; }
+.dsd-closer-sub { margin: 0 auto clamp(18px, 3vw, 24px); max-width: 34em; color: var(--muted); }
+.dsd-closer-sub a { color: #fff; }
+.dsd-closer .btn { min-width: 220px; min-height: 48px; font-size: 20px; }
+
+/* ==========================================================================
+   DSD portal (signed in)
+   ========================================================================== */
+.portal-topbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: clamp(20px, 4vw, 32px) 0 clamp(12px, 2vw, 16px);
+}
+.portal-title {
+  margin: 0;
+  font: italic 900 clamp(30px, 4.4vw, 44px)/1 var(--display);
+  text-transform: uppercase;
+}
+.portal-title em { color: var(--red); }
+.portal-user { margin: 0; color: var(--muted); font-size: 14px; }
+.portal-user b { color: var(--text); }
+.portal-user a { color: #fff; }
+
+.portal-h2 {
+  margin: 0 0 14px;
+  font: italic 800 clamp(18px, 2.3vw, 22px)/1 var(--display);
+  text-transform: uppercase;
+}
+
+.cart-summary,
+.orders { margin-top: clamp(22px, 3.5vw, 32px); }
+.cart-summary {
+  padding: clamp(18px, 3vw, 26px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #040405;
+}
+.cart-lines li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14.5px;
+}
+.cart-lines li:last-child { border-bottom: 0; }
+.cart-lines small { color: var(--dim); }
+.cart-packs { margin: 12px 0 14px; color: var(--muted); font-size: 13.5px; }
+.cart-packs b { color: #fff; }
+
+.muted-block { margin: 0; color: var(--muted); }
+.order-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--line);
+}
+.order-row:last-child { border-bottom: 0; }
+.or-items { font-weight: 600; }
+.or-date { color: var(--dim); font-size: 13px; }
+.or-total { font: 900 20px/1 var(--display); color: #fff; }
+
+.portal-save {
+  margin: 0 0 18px;
+  padding: 12px 16px;
+  border: 1px solid rgba(232, 20, 28, 0.35);
+  border-radius: 12px;
+  background: rgba(232, 20, 28, 0.1);
+  color: var(--text);
+  font-size: 14px;
+}
+.portal-save b { color: var(--red); }
+
+/* ---------- Motion ---------- */
 @media screen and (prefers-reduced-motion: no-preference) {
-  .display-img-wrap { animation: pack-float 6s ease-in-out infinite; }
-  .display-aura { animation: aura-pulse 4s ease-in-out infinite; }
-  .lineup-boxes .box-img-wrap { transition: transform 0.3s var(--ease), box-shadow 0.3s var(--ease); }
-  .lineup-boxes .box-img-wrap:hover { transform: translateY(-4px); box-shadow: 0 16px 32px -12px rgba(0,0,0,0.3); }
+  .dsd-stage-img { animation: dsd-float 7s ease-in-out infinite; }
+  .dsd-stage-glow { animation: dsd-pulse 7s ease-in-out infinite; }
+  .flavor-grid .flavor-card { transition: transform 0.3s var(--ease), border-color 0.3s var(--ease); }
+  .flavor-grid .flavor-card:hover { transform: translateY(-3px); border-color: var(--line-2); }
 }
 
-@keyframes pack-float { 50% { translate: 0 -8px; } }
-@keyframes aura-pulse { 0%, 100% { opacity: 0.25; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.05); } }
+@keyframes dsd-float { 50% { transform: translateY(-8px); } }
+@keyframes dsd-pulse {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .display-img-wrap, .display-aura, .lineup-boxes .box-img-wrap { animation: none !important; transition: none !important; }
+  .dsd-stage-img,
+  .dsd-stage-glow,
+  .flavor-grid .flavor-card { animation: none !important; transition: none !important; }
 }
-
-.portal-save { background: rgba(232,20,28,0.1); border: 1px solid rgba(232,20,28,0.35); color: var(--text); border-radius: 12px; padding: 12px 16px; margin: 0 0 20px; font-size: 14px; }
-.portal-save b { color: var(--red); }

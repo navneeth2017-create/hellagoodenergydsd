@@ -17,6 +17,7 @@ const compression = require('compression');
 const { rateLimit } = require('express-rate-limit');
 const pricing = require('./public/js/pricing.js');
 const site = require('./lib/site.js');
+const lineup = require('./lib/lineup.js');
 const db = require('./lib/db.js');
 const auth = require('./lib/auth.js');
 const pkg = require('./package.json');
@@ -671,36 +672,23 @@ function createApp(opts = {}) {
     if (req.query.checkout === 'cancelled') return res.redirect(302, '/portal');
     const session = auth.readSession(req);
     const pct = await getWholesalePct();
-    const flavors = pricing.FLAVORS.map(f => {
-      const avif = f.image.replace(/\.webp$/, '.avif');
-      const boxAvif = f.boxImage ? f.boxImage.replace(/\.webp$/, '.avif') : avif;
-      return {
-        id: f.id,
-        name: f.name,
-        image: f.image,
-        avif,
-        boxImage: f.boxImage,
-        boxAvif,
-      };
-    });
+    const signedIn = Boolean(session);
     sendPage(req, res, '/', {
       vars: {
-        SESSION: session ? '1' : '',
+        SESSION: signedIn ? '1' : '',
         WHOLESALE_PCT: String(pct),
         WHOLESALE_UNIT: pricing.formatCents(pricing.wholesaleUnitCentsFor(pct)),
         BOX_PRICE: pricing.formatCents(pricing.boxCentsFor(pct)),
         DISPLAY_PRICE: pricing.formatCents(pricing.displayCentsFor(pct)),
         PACKS_PER_BOX: String(pricing.PACKS_PER_BOX),
+        BOXES_PER_DISPLAY: String(pricing.BOXES_PER_DISPLAY),
         PACKS_PER_DISPLAY: String(pricing.PACKS_PER_DISPLAY),
-        FLAVORS: JSON.stringify(pricing.FLAVORS.map(f => ({
-          id: f.id,
-          name: f.name,
-          image: f.image,
-          avif: f.image.replace(/\.webp$/, '.avif'),
-          boxImage: f.boxImage,
-          boxAvif: f.boxImage ? f.boxImage.replace(/\.webp$/, '.avif') : f.image.replace(/\.webp$/, '.avif'),
-        }))),
-        HEADER_NAV: '<a class="dsd-link" href="/apply">Apply</a><a class="btn btn-red" style="padding:9px 18px;font-size:14px;" href="/login">DSD Login</a>',
+        LINEUP_HTML: lineup.cardsHtml({ pct, signedIn }),
+        ORDER_HREF: signedIn ? '/portal' : '/login?next=/portal',
+        ORDER_CTA: signedIn ? 'Order a display' : 'Log in to order',
+        HEADER_NAV: signedIn
+          ? '<a class="dsd-link" href="/portal">Portal</a><a class="dsd-link" href="#" data-logout>Sign out</a>'
+          : '<a class="dsd-link" href="/apply">Apply</a><a class="btn btn-red" style="padding:9px 18px;font-size:14px;" href="/login">DSD Login</a>',
       },
     });
   });
@@ -753,6 +741,7 @@ function createApp(opts = {}) {
         DISPLAY_PRICE: pricing.formatCents(pricing.displayCentsFor(pct)),
         PACKS_PER_BOX: String(pricing.PACKS_PER_BOX),
         PACKS_PER_DISPLAY: String(pricing.PACKS_PER_DISPLAY),
+        LINEUP_HTML: lineup.cardsHtml({ pct, signedIn: true }),
         HEADER_NAV: '<a class="dsd-link" href="/portal">Portal</a><a class="dsd-link muted" href="#" data-logout>Sign out</a>',
       },
     });
@@ -784,6 +773,7 @@ function createApp(opts = {}) {
   // Templates are never served raw: /privacy.html -> /privacy, anything else .html -> 404.
   app.use((req, res, next) => {
     if (!/\.html?$/i.test(req.path)) return next();
+    if (process.env.NODE_ENV !== 'production' && req.path === '/devharness.html') return next();
     const clean = req.path.replace(/\.html?$/i, '').replace(/\/index$/, '/') || '/';
     const qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
     if (clean in site.PAGES) return res.redirect(301, clean + qs);

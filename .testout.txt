@@ -1,0 +1,70 @@
+﻿
+> hellagoodenergydsd@1.0.1 test
+> node --test test/*.test.js
+
+Γ£ö password hashing round-trips and rejects the wrong password (138.5772ms)
+Γ£ö two hashes of the same password differ (per-user salt) (169.3941ms)
+Γ£ö session tokens sign and verify, and reject tampering and expiry (3.0395ms)
+Γ£ö a forged session signed with the wrong secret is refused (0.8268ms)
+Γ£ö readSession parses the cookie and ignores absent/malformed cookies (0.6469ms)
+Γ£ö empty, blank and placeholder values count as not set (1.313ms)
+Γ£ö a publishable key or webhook secret in the secret box is refused (0.5318ms)
+Γ£ö real secret and restricted keys are accepted, trimmed and unquoted (432.202ms)
+Γ£ö webhook secret must look like whsec_ (0.2852ms)
+Γ£ö landing: DSD pitch, box/display pricing, The Line Up, login + apply CTAs (137.6594ms)
+Γ£ö login page renders the form and apply link (70.7976ms)
+Γ£ö apply page renders the application form (48.7027ms)
+Γ£ö invite page shows the expired state when the token is missing (41.5802ms)
+Γ£ö portal and admin redirect to login when unauthenticated (41.5461ms)
+Γ£ö success page without a key: generic thank-you, noindex (41.4974ms)
+Γ£ö success page with a session shows the wholesale order summary (no tier line) (33.1065ms)
+Γ£ö cancel page points back to the portal (42.0349ms)
+Γ£ö robots.txt blocks the API and points at the sitemap (31.0277ms)
+Γ£ö sitemap lists the landing and apply page, skipping drafts and auth pages (30.3213ms)
+Γ£ö 404 page is branded, noindex and returns 404 (36.4536ms)
+Γ£ö static assets: versioned assets cache for a year (45.3191ms)
+Γ£ö tier unit prices are $5.99 / $5.39 / $4.79 (1.9182ms)
+Γ£ö 1 pack: full price + flat shipping (0.6994ms)
+Γ£ö 4 packs: still full price, 1 pack from 10% (0.7076ms)
+Γ£ö 5 packs: 10% off -> $5.39 each (0.4419ms)
+Γ£ö 14 packs: still 10% (0.3865ms)
+Γ£ö 15 packs: 20% off -> $4.79 each (0.744ms)
+Γ£ö mixed flavors count toward the tier together (2.1395ms)
+Γ£ö validation rejects bad input (1.4348ms)
+Γ£ö validation accepts 1-90 boxes per flavor (2.1924ms)
+Γ£ö wholesale default is 25% off: $4.49 a pack, $67.35 a 15-pack box (0.581ms)
+Γ£ö a display is three boxes, one of each flavor: 45 packs, $202.05 (0.5407ms)
+Γ£ö wholesale quote is flat per box, no tier breakpoints (0.6728ms)
+Γ£ö one box of each flavor is exactly one display (0.4321ms)
+Γ£ö 2/2/1 boxes is one full display plus one loose box (0.3195ms)
+Γ£ö wholesale box price rounds sensibly at other percentages (0.256ms)
+Γ£ö /health reports the deploy version and is never cached (195.3709ms)
+Γ£ö /health answers 503 while the server drains for shutdown (47.6606ms)
+Γ£ö every route has a deliberate Cache-Control (229.7749ms)
+Γ£ö security.txt: RFC 9116 fields and a support contact (38.6261ms)
+Γ£ö 500: branded HTML for browsers, JSON otherwise, never cached (47.2861ms)
+Γ£ö request log: method, path, status and time only; no secrets (82.5774ms)
+Γ£ö logPath strips queries, control characters, emails and long numbers (0.2842ms)
+∩╣ú SIGTERM: drains, closes keep-alive sockets and exits 0 (0.1214ms) # SKIP
+Γ£ö images: every <picture> offers AVIF first and referenced files are served (54.2915ms)
+Γ£ö stylesheet is served minified (31.7384ms)
+Γ£ö the brand is HELLA GOOD! on every page (62.8259ms)
+Γ£ö /health reports the version and DB status (142.5006ms)
+Γ£ö account endpoints answer cleanly while the database is not configured (167.051ms)
+Γ£ö /api/logout clears the session cookie (36.9634ms)
+Γ£ö unknown API routes 404 with JSON (32.1654ms)
+Γ£ö Stripe errors surface as a friendly 502 (DB-backed path is exercised in the integration test) (41.7783ms)
+Γ£ö webhook verifies signatures and logs paid orders without card data (34.6141ms)
+Γ£ö webhook is disabled cleanly when not configured (32.6335ms)
+Γ£ö security headers: CSP allows Stripe, fonts are self-hosted (36.7963ms)
+Γ£ö login rate limiting kicks in without a DB (450.7761ms)
+Γ£ö orderSummary strips contact data but keeps the safe fields (0.3426ms)
+Γ£ö feed is hidden until FEED_TOKEN is set, then requires the bearer token (60.9958ms)
+Γä╣ tests 58
+Γä╣ suites 0
+Γä╣ pass 57
+Γä╣ fail 0
+Γä╣ cancelled 0
+Γä╣ skipped 1
+Γä╣ todo 0
+Γä╣ duration_ms 1714.3105
