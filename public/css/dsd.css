@@ -135,7 +135,7 @@
   aspect-ratio: 3/4; 
   object-fit: cover; 
   border-radius: 10px; 
-  background: var(--bg);
+  background: var(--card);
   transition: transform 0.3s var(--ease); 
 }
 .lineup-boxes .dual-img:hover img { transform: scale(1.02); }
