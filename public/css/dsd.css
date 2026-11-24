@@ -136,6 +136,7 @@
   object-fit: cover; 
   border-radius: 10px; 
   background: var(--bg);
+  mix-blend-mode: multiply;
   transition: transform 0.3s var(--ease); 
 }
 .lineup-boxes .dual-img:hover img { transform: scale(1.02); }
