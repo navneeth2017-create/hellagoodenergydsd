@@ -15,7 +15,7 @@ COPY --from=builder /app/lib ./lib
 COPY --from=builder /app/server.js ./
 COPY --from=builder /app/*.js ./
 
-ARG CACHE_BUST=1
+ARG CACHE_BUST=2
 ENV NODE_ENV=production
 EXPOSE 3000
 CMD ["node", "server.js"]
