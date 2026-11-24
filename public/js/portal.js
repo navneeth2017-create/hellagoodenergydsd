@@ -52,9 +52,13 @@
     var boxHtml = P.FLAVORS.map(function (f) {
       var qty = boxesOf(c, f.id);
       var avif = f.image.replace(/\.webp$/, '.avif');
+      var boxAvif = f.boxImage ? f.boxImage.replace(/\.webp$/, '.avif') : avif;
       return '<article class="product-card box-card" data-card="' + f.id + '">'
         + '<div class="box-img-wrap">'
-        + '<picture><source type="image/avif" srcset="' + avif + '"><img src="' + f.image + '" alt="' + esc(f.name) + '" loading="lazy"></picture>'
+        + '<div class="dual-img">'
+        + '<picture><source type="image/avif" srcset="' + avif + '"><img src="' + f.image + '" alt="' + esc(f.name) + ' pack" loading="lazy" class="pack-img"></picture>'
+        + (f.boxImage ? '<picture><source type="image/avif" srcset="' + boxAvif + '"><img src="' + f.boxImage + '" alt="' + esc(f.name) + ' box" loading="lazy" class="box-img"></picture>' : '')
+        + '</div>'
         + '</div>'
         + '<h3>' + esc(f.name) + '</h3>'
         + '<p class="wprice"><b>' + fmt(boxC) + '</b> / box <small>(' + P.PACKS_PER_BOX + ' packs)</small></p>'

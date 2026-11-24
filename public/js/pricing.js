@@ -27,9 +27,9 @@
   const MAX_BOXES_PER_FLAVOR = 90;
 
   const FLAVORS = Object.freeze([
-    { id: 'blue-razz', name: 'Razzilicious', color: 'turquoise', image: '/images/pack-razzilicious.webp' },
-    { id: 'strawberry-lemonade', name: 'Strawberry Lemonade', color: 'red', image: '/images/pack-strawberry-lemonade.webp' },
-    { id: 'orange-pineapple-mango', name: 'Orange Pineapple Mango', color: 'orange', image: '/images/pack-orange-pineapple-mango.webp' },
+    { id: 'blue-razz', name: 'Razzilicious', color: 'turquoise', image: '/images/pack-razzilicious.webp', boxImage: '/images/box-razzilicious.webp' },
+    { id: 'strawberry-lemonade', name: 'Strawberry Lemonade', color: 'red', image: '/images/pack-strawberry-lemonade.webp', boxImage: '/images/box-strawberry-lemonade.webp' },
+    { id: 'orange-pineapple-mango', name: 'Orange Pineapple Mango', color: 'orange', image: '/images/pack-orange-pineapple-mango.webp', boxImage: '/images/box-orange-pineapple-mango.webp' },
   ]);
 
   // Highest threshold first. Flavors mix and match toward the tier. (Retail only.)
