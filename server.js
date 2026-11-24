@@ -699,7 +699,7 @@ function createApp(opts = {}) {
           avif: f.image.replace(/\.webp$/, '.avif'),
           boxImage: f.boxImage,
           boxAvif: f.boxImage ? f.boxImage.replace(/\.webp$/, '.avif') : f.image.replace(/\.webp$/, '.avif'),
-        })),
+        }))),
         HEADER_NAV: '<a class="dsd-link" href="/apply">Apply</a><a class="btn btn-red" style="padding:9px 18px;font-size:14px;" href="/login">DSD Login</a>',
       },
     });
