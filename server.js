@@ -773,7 +773,6 @@ function createApp(opts = {}) {
   // Templates are never served raw: /privacy.html -> /privacy, anything else .html -> 404.
   app.use((req, res, next) => {
     if (!/\.html?$/i.test(req.path)) return next();
-    if (process.env.NODE_ENV !== 'production' && req.path === '/devharness.html') return next();
     const clean = req.path.replace(/\.html?$/i, '').replace(/\/index$/, '/') || '/';
     const qs = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
     if (clean in site.PAGES) return res.redirect(301, clean + qs);
