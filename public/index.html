@@ -33,15 +33,15 @@
       </header>
 
       <!-- DISPLAY HERO: The stand image -->
-      <section class="display-hero" aria-labelledby="display-title" style="margin:0 auto clamp(24px, 4vw, 40px);max-width:720px;">
-        <div class="display-stage" style="position:relative;border-radius:16px;overflow:hidden;background:var(--card);">
-          <div class="display-aura" aria-hidden="true" style="position:absolute;inset:-30px;border-radius:50%;background:radial-gradient(ellipse at center,var(--red) 0%,transparent 70%);opacity:0.3;pointer-events:none;animation:aura-pulse 4s ease-in-out infinite;"></div>
-          <picture>
+      <section class="display-hero" aria-labelledby="display-title">
+        <div class="display-stage" role="img" aria-label="HELLA GOOD! 3-flavor display stand">
+          <div class="display-aura" aria-hidden="true"></div>
+          <picture class="display-img-wrap">
             <source type="image/avif" srcset="/images/display.avif">
-            <img id="display-img" src="/images/display.webp" alt="HELLA GOOD! 3-flavor display stand" width="720" height="720" style="display:block;width:100%;height:auto;border-radius:16px;" fetchpriority="high">
+            <img id="display-img" src="/images/display.webp" alt="HELLA GOOD! 3-flavor display stand" width="720" height="720" fetchpriority="high">
           </picture>
         </div>
-        <p class="lineup-sub" style="margin-top:16px;text-align:center;color:var(--muted);font-size:clamp(13px, 2vw, 15px);">One display = 3 boxes, one of each flavor (45 packs) · <b id="lineup-display-price" style="color:var(--text);">{{DISPLAY_PRICE}}</b></p>
+        <p class="lineup-sub">One display = 3 boxes, one of each flavor (45 packs) · <b id="lineup-display-price">{{DISPLAY_PRICE}}</b></p>
       </section>
 
       <!-- FLAVOR BOXES GRID -->
