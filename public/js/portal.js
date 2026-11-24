@@ -57,7 +57,8 @@
         + '<div class="box-img-wrap">'
         + '<div class="dual-img">'
         + '<picture><source type="image/avif" srcset="' + avif + '"><img src="' + f.image + '" alt="' + esc(f.name) + ' pack" loading="lazy" class="pack-img"></picture>'
-        + (f.boxImage ? '<picture><source type="image/avif" srcset="' + boxAvif + '"><img src="' + f.boxImage + '" alt="' + esc(f.name) + ' box" loading="lazy" class="box-img"></picture>' : '')
+        + '<span class="img-label">Pack</span>'
+        + (f.boxImage ? '<picture><source type="image/avif" srcset="' + boxAvif + '"><img src="' + f.boxImage + '" alt="' + esc(f.name) + ' box" loading="lazy" class="box-img"></picture><span class="img-label">Box (15 packs)</span>' : '')
         + '</div>'
         + '</div>'
         + '<h3>' + esc(f.name) + '</h3>'
