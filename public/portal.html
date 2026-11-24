@@ -18,26 +18,25 @@
 
   <main id="main">
     <div class="wrap">
-      <div class="portal-topbar" style="justify-content:center;text-align:center;gap:24px;padding:32px 0 24px;">
-        <h1 style="font-size:56px;font-weight:900;margin:0;line-height:1.1;">DSD <em style="color:var(--red);">Portal</em></h1>
-      </div>
+      <header class="portal-topbar" style="justify-content:center;text-align:center;gap:16px;padding:clamp(20px, 4vw, 32px) 0;">
+        <h1 style="font-size:clamp(32px, 5vw, 48px);font-weight:900;margin:0;line-height:1.1;">DSD <em style="color:var(--red);">Portal</em></h1>
+        <div class="portal-user" style="color:var(--muted);font-size:14px;">Signed in as <b id="portal-user-name">{{USER_NAME}}</b> A� <a href="#" data-logout style="color:var(--accent);">Sign out</a></div>
+      </header>
 
       <div class="portal-save" id="portal-save" hidden></div>
 
       <!-- FLAVOR BOXES GRID -->
       <section class="line-up" aria-labelledby="lineup-title">
-        <div class="lineup-boxes" id="lineup-boxes" aria-label="Individual flavor boxes for reorders"></div>
-
-        <p class="lineup-sub" style="margin-top:24px;color:var(--muted);font-size:14px;text-align:center;">Single packs not available at wholesale.</p>
+        <div class="lineup-boxes" id="lineup-boxes" aria-label="Individual flavor boxes for reorders" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(clamp(180px, 25vw, 240px),1fr));gap:clamp(16px, 3vw, 24px);padding:clamp(16px, 3vw, 24px) 0;"></div>
       </section>
 
-      <section class="cart-summary" id="cart-summary" aria-labelledby="cart-title">
-        <h2 id="cart-title">Your order</h2>
+      <section class="cart-summary" id="cart-summary" aria-labelledby="cart-title" style="margin-top:clamp(24px, 4vw, 32px);">
+        <h2 id="cart-title" style="font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:clamp(20px, 3vw, 24px);margin:0 0 16px;">Your order</h2>
         <div id="cart-body"></div>
       </section>
 
-      <section class="orders" id="orders-section" aria-labelledby="orders-title">
-        <h2 id="orders-title">My orders</h2>
+      <section class="orders" id="orders-section" aria-labelledby="orders-title" style="margin-top:clamp(24px, 4vw, 32px);">
+        <h2 id="orders-title" style="font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:clamp(20px, 3vw, 24px);margin:0 0 16px;">My orders</h2>
         <div id="orders-list"></div>
       </section>
     </div>

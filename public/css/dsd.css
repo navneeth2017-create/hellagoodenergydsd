@@ -136,7 +136,6 @@
   object-fit: cover; 
   border-radius: 10px; 
   background: var(--bg);
-  mix-blend-mode: multiply;
   transition: transform 0.3s var(--ease); 
 }
 .lineup-boxes .dual-img:hover img { transform: scale(1.02); }
@@ -166,7 +165,7 @@
 }
 
 @keyframes pack-float { 50% { translate: 0 -8px; } }
-@keyframes aura-flash { 12% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes aura-pulse { 0%, 100% { opacity: 0.25; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.05); } }
 
 @media (prefers-reduced-motion: reduce) {
   .display-img-wrap, .display-aura, .lineup-boxes .box-img-wrap { animation: none !important; transition: none !important; }

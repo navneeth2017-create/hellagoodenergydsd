@@ -24,51 +24,63 @@
   <main id="main">
     <div class="wrap">
       <!-- Hero: The Line Up heading + CTAs -->
-      <div class="portal-topbar" style="justify-content:center;text-align:center;gap:24px;padding:40px 0;">
-        <h1 style="font-size:56px;font-weight:900;margin:0;line-height:1.1;">The <em style="color:var(--red);">Line Up</em></h1>
-        <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:16px;">
-          <a class="btn btn-red btn-xl" href="/login" style="min-width:220px;height:56px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;padding:0 28px;">DSD Login <svg class="ico" aria-hidden="true" style="width:20px;height:20px;margin-left:8px;"><use href="#i-bolt"/></svg></a>
-          <a class="btn btn-xl" href="/apply" style="min-width:220px;height:56px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;padding:0 28px;background:transparent;border:2px solid var(--text);color:var(--text);">Apply to become a DSD</a>
+      <header class="lineup-hero" style="padding: clamp(24px, 5vw, 48px) 0;">
+        <h1 style="font-size:clamp(36px, 6vw, 56px);font-weight:900;margin:0 0 clamp(12px, 3vw, 24px);line-height:1.1;text-align:center;">The <em style="color:var(--red);">Line Up</em></h1>
+        <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:clamp(8px, 2vw, 16px);">
+          <a class="btn btn-red btn-xl" href="/login" style="min-width:200px;height:52px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;padding:0 24px;">DSD Login <svg class="ico" aria-hidden="true" style="width:20px;height:20px;margin-left:8px;"><use href="#i-bolt"/></svg></a>
+          <a class="btn btn-xl" href="/apply" style="min-width:200px;height:52px;display:inline-flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;padding:0 24px;background:transparent;border:2px solid var(--text);color:var(--text);">Apply to become a DSD</a>
         </div>
-      </div>
+      </header>
+
+      <!-- DISPLAY HERO: The stand image -->
+      <section class="display-hero" aria-labelledby="display-title" style="margin:0 auto clamp(24px, 4vw, 40px);max-width:720px;">
+        <div class="display-stage" style="position:relative;border-radius:16px;overflow:hidden;background:var(--card);">
+          <div class="display-aura" aria-hidden="true" style="position:absolute;inset:-30px;border-radius:50%;background:radial-gradient(ellipse at center,var(--red) 0%,transparent 70%);opacity:0.3;pointer-events:none;animation:aura-pulse 4s ease-in-out infinite;"></div>
+          <picture>
+            <source type="image/avif" srcset="/images/display.avif">
+            <img id="display-img" src="/images/display.webp" alt="HELLA GOOD! 3-flavor display stand" width="720" height="720" style="display:block;width:100%;height:auto;border-radius:16px;" fetchpriority="high">
+          </picture>
+        </div>
+        <p class="lineup-sub" style="margin-top:16px;text-align:center;color:var(--muted);font-size:clamp(13px, 2vw, 15px);">One display = 3 boxes, one of each flavor (45 packs) · <b id="lineup-display-price" style="color:var(--text);">{{DISPLAY_PRICE}}</b></p>
+      </section>
 
       <!-- FLAVOR BOXES GRID -->
       <section class="line-up" aria-labelledby="lineup-title">
-        <div class="lineup-boxes" id="lineup-boxes" aria-label="Individual flavor boxes for reorders"></div>
+        <div class="lineup-boxes" id="lineup-boxes" aria-label="Individual flavor boxes for reorders" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(clamp(180px, 25vw, 240px),1fr));gap:clamp(16px, 3vw, 24px);padding:clamp(16px, 3vw, 24px) 0;"></div>
 
-        <p class="lineup-sub" style="margin-top:24px;color:var(--muted);font-size:14px;text-align:center;">Single packs not available at wholesale. <a href="/apply" style="color:var(--accent);">Apply</a> or <a href="/login" style="color:var(--accent);">log in</a> to order.</p>
+        <p class="lineup-sub" style="margin-top:24px;color:var(--muted);font-size:clamp(13px, 2vw, 14px);text-align:center;">Single packs not available at wholesale. <a href="/apply" style="color:var(--accent);">Apply</a> or <a href="/login" style="color:var(--accent);">log in</a> to order.</p>
       </section>
 
       <!-- Program + FAQ below the line up -->
-      <section class="dsd-section" id="program" aria-labelledby="program-title">
+      <section class="dsd-section" id="program" aria-labelledby="program-title" style="margin-top:clamp(32px, 6vw, 56px);">
         <div class="wrap">
-          <p class="eyebrow center">The DSD program</p>
-          <h2 id="program-title" class="h2 center">How it <em>works</em></h2>
-          <div class="dsd-grid">
-            <article class="dsd-card">
-              <p class="dsd-num">1</p>
-              <h3>Apply or get invited</h3>
-              <p>Apply for a DSD account and we review it, or your account is created for you and you finish setup from an invite link.</p>
+          <p class="eyebrow center" style="margin:0 0 8px;color:var(--muted);font-size:13px;text-transform:uppercase;letter-spacing:0.1em;">The DSD program</p>
+          <h2 id="program-title" class="h2 center" style="margin:0 0 clamp(24px, 4vw, 32px);font-size:clamp(28px, 4vw, 36px);">How it <em>works</em></h2>
+          <div class="dsd-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:clamp(16px, 3vw, 24px);">
+            <article class="dsd-card" style="background:var(--card);border:1px solid var(--line);border-radius:16px;padding:clamp(20px, 3vw, 28px);">
+              <p class="dsd-num" style="font-family:var(--display);font-weight:900;font-style:italic;font-size:48px;color:var(--red);margin:0 0 12px;line-height:1;">1</p>
+              <h3 style="margin:0 0 8px;font-size:20px;">Apply or get invited</h3>
+              <p style="margin:0;color:var(--muted);line-height:1.6;">Apply for a DSD account and we review it, or your account is created for you and you finish setup from an invite link.</p>
             </article>
-            <article class="dsd-card">
-              <p class="dsd-num">2</p>
-              <h3>Log in</h3>
-              <p>Once approved, log in to your distributor portal &mdash; same look as the HELLA GOOD! shop, built for wholesale.</p>
+            <article class="dsd-card" style="background:var(--card);border:1px solid var(--line);border-radius:16px;padding:clamp(20px, 3vw, 28px);">
+              <p class="dsd-num" style="font-family:var(--display);font-weight:900;font-style:italic;font-size:48px;color:var(--red);margin:0 0 12px;line-height:1;">2</p>
+              <h3 style="margin:0 0 8px;font-size:20px;">Log in</h3>
+              <p style="margin:0;color:var(--muted);line-height:1.6;">Once approved, log in to your distributor portal &mdash; same look as the HELLA GOOD! shop, built for wholesale.</p>
             </article>
-            <article class="dsd-card">
-              <p class="dsd-num">3</p>
-              <h3>Order at {{WHOLESALE_PCT}}% off</h3>
-              <p>Every box is a flat {{WHOLESALE_PCT}}% off retail. Mix any flavors, check out securely with Stripe, and we ship it.</p>
+            <article class="dsd-card" style="background:var(--card);border:1px solid var(--line);border-radius:16px;padding:clamp(20px, 3vw, 28px);">
+              <p class="dsd-num" style="font-family:var(--display);font-weight:900;font-style:italic;font-size:48px;color:var(--red);margin:0 0 12px;line-height:1;">3</p>
+              <h3 style="margin:0 0 8px;font-size:20px;">Order at {{WHOLESALE_PCT}}% off</h3>
+              <p style="margin:0;color:var(--muted);line-height:1.6;">Every box is a flat {{WHOLESALE_PCT}}% off retail. Mix any flavors, check out securely with Stripe, and we ship it.</p>
             </article>
           </div>
         </div>
       </section>
 
-      <section class="dsd-section" id="faq" aria-labelledby="faq-title">
+      <section class="dsd-section" id="faq" aria-labelledby="faq-title" style="margin-top:clamp(32px, 6vw, 56px);">
         <div class="wrap">
-          <h2 id="faq-title" class="h2 center">Questions?</h2>
-          <p class="lede center" style="max-width:520px;margin:0 auto;">Email us at <a href="mailto:admin@hellagoodenergy.com" style="color:var(--text)">admin@hellagoodenergy.com</a> to talk about becoming a HELLA GOOD! DSD.</p>
-          <div class="center" style="margin-top:22px;"><a class="btn btn-red btn-xl" href="/apply">Apply now <svg class="ico" aria-hidden="true"><use href="#i-bolt"/></svg></a></div>
+          <h2 id="faq-title" class="h2 center" style="margin:0 0 clamp(16px, 3vw, 24px);font-size:clamp(28px, 4vw, 36px);">Questions?</h2>
+          <p class="lede center" style="max-width:520px;margin:0 auto 24px;color:var(--muted);line-height:1.6;">Email us at <a href="mailto:admin@hellagoodenergy.com" style="color:var(--text);">admin@hellagoodenergy.com</a> to talk about becoming a HELLA GOOD! DSD.</p>
+          <div class="center"><a class="btn btn-red btn-xl" href="/apply" style="min-width:240px;height:56px;display:inline-flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;padding:0 28px;">Apply now <svg class="ico" aria-hidden="true" style="width:20px;height:20px;margin-left:8px;"><use href="#i-bolt"/></svg></a></div>
         </div>
       </section>
     </div>
