@@ -267,7 +267,7 @@ function createApp(opts = {}) {
         directives: {
           'default-src': ["'self'"],
           'script-src': ["'self'", 'https://js.stripe.com'],
-          'style-src': ["'self'"],
+          'style-src': ["'self'", "'unsafe-inline'"],
           'font-src': ["'self'"],
           'img-src': ["'self'", 'data:', 'https://*.stripe.com'],
           'connect-src': ["'self'", 'https://api.stripe.com'],
