@@ -95,7 +95,7 @@
   /* The stand is a 1:2.7 vertical object, so its height is what controls how
      substantial it looks. Kept tall enough to read on a phone, capped so it
      does not push the rest of the hero off a large screen. */
-  height: clamp(290px, 44vh, 540px);
+  height: clamp(340px, 52vh, 620px);
   max-width: 100%;
   object-fit: contain;
   filter: drop-shadow(0 28px 38px rgba(0, 0, 0, 0.8));
